@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiche Client - Compositeur Musique à l'Image</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #5f72bd 0%, #9b59b6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .project-info {
+            background: #f0f4ff;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .project-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .project-field label {
+            font-size: 0.9em;
+            color: #5f72bd;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .project-field input {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .project-field input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 35px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section.important {
+            background: #fff5f5;
+            border-left-color: #e53e3e;
+        }
+        
+        .section.important h2 {
+            color: #e53e3e;
+        }
+        
+        h2 {
+            color: #5f72bd;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.2em;
+        }
+        
+        .question-item {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .question-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .question-item.filled {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .question-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 0.95em;
+        }
+        
+        .question-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .question-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f7faff;
+        }
+        
+        .question-input.filled {
+            border-color: #9ae6b4;
+        }
+        
+        .quick-note {
+            font-size: 0.85em;
+            color: #718096;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        .actions {
+            padding: 25px 30px;
+            background: #f7fafc;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-save {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+        
+        .btn-export {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-reset {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-reset:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-import {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-import:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+        
+        .progress-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .progress-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: conic-gradient(#667eea 0deg, #667eea var(--progress), #e2e8f0 var(--progress));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            position: relative;
+        }
+        
+        .progress-circle::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #48bb78;
+            color: white;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .save-status.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .project-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-indicator {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            .actions, .progress-indicator, .save-status {
+                display: none;
+            }
+            
+            .question-input {
+                border: 1px solid #333;
+                min-height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="save-status" id="saveStatus">✓ Sauvegardé automatiquement</div>
+    
+    <div class="container">
+        <header>
+            <h1>🎵 Fiche Client - Projet Musical</h1>
+            <div class="subtitle">Guide complet pour compositeur de musique à l'image</div>
+        </header>
+        
+        <div class="project-info">
+            <div class="project-info-grid">
+                <div class="project-field">
+                    <label for="client-name">Nom du client / Société</label>
+                    <input type="text" id="client-name" placeholder="Ex: Productions XYZ">
+                </div>
+                <div class="project-field">
+                    <label for="project-name">Nom du projet</label>
+                    <input type="text" id="project-name" placeholder="Ex: Court-métrage 'Titre'">
+                </div>
+                <div class="project-field">
+                    <label for="contact-date">Date du premier contact</label>
+                    <input type="date" id="contact-date">
+                </div>
+                <div class="project-field">
+                    <label for="contact-person">Personne de contact</label>
+                    <input type="text" id="contact-person" placeholder="Nom et fonction">
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- 1. Informations sur le projet -->
+            <div class="section">
+                <h2><span class="icon">📋</span> Informations générales sur le projet</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Type de projet (film, pub, documentaire, série, jeu vidéo, etc.)</label>
+                    <textarea class="question-input" data-field="project-type" placeholder="Précisez le type de projet et son format..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Durée totale du projet</label>
+                    <textarea class="question-input" data-field="project-duration" placeholder="Ex: 52 minutes, 3 épisodes de 26 minutes..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Synopsis ou description du projet</label>
+                    <textarea class="question-input" data-field="synopsis" placeholder="Résumé de l'histoire, thématiques principales..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Public cible</label>
+                    <textarea class="question-input" data-field="target-audience" placeholder="Âge, démographie, contexte de diffusion..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Plateforme(s) de diffusion prévue(s)</label>
+                    <textarea class="question-input" data-field="platforms" placeholder="Cinéma, TV, streaming, web..."></textarea>
+                </div>
+            </div>
+
+            <!-- 2. Aspects financiers -->
+            <div class="section important">
+                <h2><span class="icon">💰</span> Aspects financiers et budget</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Budget total alloué à la musique</label>
+                    <textarea class="question-input" data-field="budget-total" placeholder="Montant en euros, HT ou TTC..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Mode de rémunération (forfait, tarif journalier, royalties)</label>
+                    <textarea class="question-input" data-field="payment-mode" placeholder="Détaillez le mode de rémunération choisi..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Modalités de paiement (acompte, échéances)</label>
+                    <textarea class="question-input" data-field="payment-terms" placeholder="Ex: 30% à la signature, 40% à mi-parcours, 30% à la livraison..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Budget pour musiciens additionnels si nécessaire</label>
+                    <textarea class="question-input" data-field="musicians-budget" placeholder="Budget séparé ou inclus, montants..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Frais annexes inclus ou non (studio, déplacements)</label>
+                    <textarea class="question-input" data-field="additional-costs" placeholder="Liste des frais couverts ou à prévoir..."></textarea>
+                </div>
+            </div>
+
+            <!-- 3. Besoins musicaux -->
+            <div class="section">
+                <h2><span class="icon">🎼</span> Besoins musicaux spécifiques</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Durée totale de musique désirée</label>
+                    <textarea class="question-input" data-field="music-duration" placeholder="Ex: 20 minutes de musique originale..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Nombre de thèmes/morceaux différents</label>
+                    <textarea class="question-input" data-field="themes-count" placeholder="Ex: 1 thème principal, 3 thèmes secondaires, 5 ambiances..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Style(s) musical(aux) recherché(s)</label>
+                    <textarea class="question-input" data-field="music-style" placeholder="Orchestral, électronique, jazz, hybride..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Références musicales ou compositeurs d'inspiration</label>
+                    <textarea class="question-input" data-field="references" placeholder="Films, compositeurs, morceaux spécifiques..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Instrumentation souhaitée</label>
+                    <textarea class="question-input" data-field="instrumentation" placeholder="Orchestre complet, quartet, synthétiseurs, instruments spécifiques..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Besoins en musique diégétique vs extra-diégétique</label>
+                    <textarea class="question-input" data-field="diegetic-music" placeholder="Musique dans la scène (radio, concert) vs musique de fond..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Nécessité de variations (versions courtes, loops, stingers)</label>
+                    <textarea class="question-input" data-field="variations" placeholder="Versions 30s, 60s, loops pour montage, fins alternatives..."></textarea>
+                </div>
+            </div>
+
+            <!-- 4. Planning -->
+            <div class="section">
+                <h2><span class="icon">📅</span> Planning et deadlines</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Date de début du projet</label>
+                    <textarea class="question-input" data-field="start-date" placeholder="Date de début de composition..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Date de livraison finale</label>
+                    <textarea class="question-input" data-field="deadline" placeholder="Deadline finale et impératifs..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Étapes intermédiaires et validations</label>
+                    <textarea class="question-input" data-field="milestones" placeholder="Maquettes, versions intermédiaires, dates de validation..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Disponibilité pour les sessions de travail/feedback</label>
+                    <textarea class="question-input" data-field="availability" placeholder="Créneaux privilégiés, fuseau horaire..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Flexibilité du planning en cas d'imprévu</label>
+                    <textarea class="question-input" data-field="flexibility" placeholder="Marge de manœuvre, dates butoirs absolues..."></textarea>
+                </div>
+            </div>
+
+            <!-- 5. Aspects techniques -->
+            <div class="section">
+                <h2><span class="icon">🎧</span> Aspects techniques et production</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Présence d'un ingénieur du son dédié ou besoin de mixage/mastering</label>
+                    <textarea class="question-input" data-field="sound-engineer" placeholder="Qui s'occupe du mixage et mastering, coordination..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Format de livraison souhaité</label>
+                    <textarea class="question-input" data-field="delivery-format" placeholder="WAV 48kHz/24bit, AIFF, MP3, résolution..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Livraison en stems séparés ou mix stéréo</label>
+                    <textarea class="question-input" data-field="stems" placeholder="Nombre de stems, organisation (cordes, vents, percu...)"></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Normes de diffusion spécifiques</label>
+                    <textarea class="question-input" data-field="broadcast-standards" placeholder="EBU R128, loudness cible, normes TV..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Besoin de synchronisation précise avec l'image</label>
+                    <textarea class="question-input" data-field="sync-needs" placeholder="Synchro au frame près, points de synchro importants..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Format vidéo pour le travail</label>
+                    <textarea class="question-input" data-field="video-format" placeholder="Codec (H264, ProRes), résolution, framerate, timecode..."></textarea>
+                </div>
+            </div>
+
+            <!-- 6. Droits et aspects juridiques -->
+            <div class="section important">
+                <h2><span class="icon">⚖️</span> Droits et aspects juridiques</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Dépôt SACEM acceptable ou problématique</label>
+                    <textarea class="question-input" data-field="sacem" placeholder="Position sur le dépôt SACEM, gestion des droits..."></textarea>
+                    <div class="quick-note">Point crucial à clarifier dès le début</div>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Cession de droits souhaitée</label>
+                    <textarea class="question-input" data-field="rights-transfer" placeholder="Totale, partielle, durée, territoires..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Droits d'exploitation</label>
+                    <textarea class="question-input" data-field="exploitation-rights" placeholder="Territoires, durée, supports, usages autorisés..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Crédit au générique</label>
+                    <textarea class="question-input" data-field="credits" placeholder="Forme du crédit, position au générique..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Possibilité d'utiliser la musique pour portfolio personnel</label>
+                    <textarea class="question-input" data-field="portfolio-use" placeholder="Droits de présentation, extraits autorisés..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Contrat de commande ou de cession à établir</label>
+                    <textarea class="question-input" data-field="contract" placeholder="Type de contrat, qui le rédige, points spécifiques..."></textarea>
+                </div>
+            </div>
+
+            <!-- 7. Collaboration -->
+            <div class="section">
+                <h2><span class="icon">🤝</span> Modalités de collaboration</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Interlocuteur principal pour les validations</label>
+                    <textarea class="question-input" data-field="main-contact" placeholder="Nom, fonction, coordonnées..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Processus de validation</label>
+                    <textarea class="question-input" data-field="validation-process" placeholder="Étapes, nombre de personnes impliquées, circuit de décision..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Nombre de révisions incluses dans le devis</label>
+                    <textarea class="question-input" data-field="revisions" placeholder="Nombre de révisions, au-delà facturation..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Mode de communication privilégié</label>
+                    <textarea class="question-input" data-field="communication" placeholder="Email, téléphone, visio, plateforme collaborative..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Fréquence des points d'avancement souhaités</label>
+                    <textarea class="question-input" data-field="progress-meetings" placeholder="Hebdomadaire, bi-mensuel, à la demande..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Possibilité d'assister aux sessions d'enregistrement</label>
+                    <textarea class="question-input" data-field="recording-sessions" placeholder="Client présent, streaming, envoi des rushes..."></textarea>
+                </div>
+            </div>
+
+            <!-- 8. Éléments complémentaires -->
+            <div class="section">
+                <h2><span class="icon">➕</span> Éléments complémentaires</h2>
+                
+                <div class="question-item">
+                    <label class="question-label">Existence de musique temporaire (temp track) à remplacer</label>
+                    <textarea class="question-input" data-field="temp-track" placeholder="Références utilisées au montage, attentes créées..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Contraintes créatives particulières</label>
+                    <textarea class="question-input" data-field="constraints" placeholder="Éléments à éviter, obligations, cohérence avec existant..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Besoins futurs potentiels</label>
+                    <textarea class="question-input" data-field="future-needs" placeholder="Suite, franchise, déclinaisons, saisons supplémentaires..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Accès aux rushes ou version de travail du projet</label>
+                    <textarea class="question-input" data-field="access-materials" placeholder="Plateforme de partage, envoi des fichiers, timing..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Coordonnées complètes et informations de facturation</label>
+                    <textarea class="question-input" data-field="billing-info" placeholder="Raison sociale, adresse, SIRET, contact comptabilité..."></textarea>
+                </div>
+                
+                <div class="question-item">
+                    <label class="question-label">Notes supplémentaires</label>
+                    <textarea class="question-input" data-field="additional-notes" placeholder="Autres informations importantes, particularités du projet..." style="min-height: 100px;"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn-save" onclick="saveManually()">💾 Sauvegarder</button>
+            <button class="btn-export" onclick="exportData()">📄 Exporter PDF</button>
+            <button class="btn-import" onclick="importData()">📥 Importer</button>
+            <button class="btn-reset" onclick="resetForm()">🔄 Réinitialiser</button>
+        </div>
+    </div>
+    
+    <div class="progress-indicator">
+        <div class="progress-circle" style="--progress: 0deg">
+            <span id="progress-percent">0%</span>
+        </div>
+        <div>
+            <div style="font-weight: 600; color: #4a5568;">Progression</div>
+            <div style="font-size: 0.9em; color: #718096;" id="progress-text">0/46 champs</div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour calculer la progression
+        function updateProgress() {
+            const allInputs = document.querySelectorAll('.question-input, .project-field input');
+            const filledInputs = Array.from(allInputs).filter(input => input.value.trim() !== '');
+            const percentage = Math.round((filledInputs.length / allInputs.length) * 100);
+            const degrees = (percentage / 100) * 360;
+            
+            document.getElementById('progress-percent').textContent = percentage + '%';
+            document.getElementById('progress-text').textContent = filledInputs.length + '/' + allInputs.length + ' champs';
+            document.querySelector('.progress-circle').style.setProperty('--progress', degrees + 'deg');
+            
+            // Marquer les champs remplis
+            allInputs.forEach(input => {
+                if (input.value.trim() !== '') {
+                    input.classList.add('filled');
+                    if (input.parentElement.classList.contains('question-item')) {
+                        input.parentElement.classList.add('filled');
+                    }
+                } else {
+                    input.classList.remove('filled');
+                    if (input.parentElement.classList.contains('question-item')) {
+                        input.parentElement.classList.remove('filled');
+                    }
+                }
+            });
+        }
+
+        // Fonction de sauvegarde automatique
+        function autoSave() {
+            const data = {
+                clientName: document.getElementById('client-name').value,
+                projectName: document.getElementById('project-name').value,
+                contactDate: document.getElementById('contact-date').value,
+                contactPerson: document.getElementById('contact-person').value,
+                fields: {}
+            };
+            
+            document.querySelectorAll('.question-input').forEach(input => {
+                data.fields[input.dataset.field] = input.value;
+            });
+            
+            localStorage.setItem('composerClientData', JSON.stringify(data));
+            
+            // Afficher notification de sauvegarde
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.classList.add('show');
+            setTimeout(() => {
+                saveStatus.classList.remove('show');
+            }, 2000);
+        }
+
+        // Fonction de sauvegarde manuelle
+        function saveManually() {
+            autoSave();
+            alert('Données sauvegardées avec succès !');
+        }
+
+        // Fonction de restauration des données
+        function restoreData() {
+            const saved = localStorage.getItem('composerClientData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                
+                document.getElementById('client-name').value = data.clientName || '';
+                document.getElementById('project-name').value = data.projectName || '';
+                document.getElementById('contact-date').value = data.contactDate || '';
+                document.getElementById('contact-person').value = data.contactPerson || '';
+                
+                Object.keys(data.fields || {}).forEach(field => {
+                    const input = document.querySelector(`[data-field="${field}"]`);
+                    if (input) {
+                        input.value = data.fields[field];
+                    }
+                });
+                
+                updateProgress();
+            }
+        }
+
+        // Fonction d'export
+        function exportData() {
+            const projectName = document.getElementById('project-name').value || 'projet';
+            const clientName = document.getElementById('client-name').value || 'client';
+            const date = new Date().toLocaleDateString('fr-FR');
+            
+            let content = `FICHE CLIENT - PROJET MUSICAL\n`;
+            content += `${'='.repeat(50)}\n\n`;
+            content += `Date: ${date}\n`;
+            content += `Client: ${clientName}\n`;
+            content += `Projet: ${projectName}\n`;
+            content += `Contact: ${document.getElementById('contact-person').value}\n`;
+            content += `Date premier contact: ${document.getElementById('contact-date').value}\n\n`;
+            
+            // Parcourir toutes les sections
+            document.querySelectorAll('.section').forEach(section => {
+                const title = section.querySelector('h2').textContent;
+                content += `\n${title}\n${'-'.repeat(title.length)}\n\n`;
+                
+                section.querySelectorAll('.question-item').forEach(item => {
+                    const label = item.querySelector('.question-label').textContent;
+                    const value = item.querySelector('.question-input').value;
+                    
+                    if (value.trim()) {
+                        content += `${label}\n`;
+                        content += `→ ${value}\n\n`;
+                    }
+                });
+            });
+            
+            // Créer et télécharger le fichier
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fiche-client-${clientName.replace(/\s+/g, '-')}-${projectName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Fonction d'import
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        localStorage.setItem('composerClientData', JSON.stringify(data));
+                        restoreData();
+                        alert('Données importées avec succès !');
+                    } catch (error) {
+                        alert('Erreur lors de l\'import du fichier. Assurez-vous qu\'il s\'agit d\'un fichier JSON valide.');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // Fonction de réinitialisation
+        function resetForm() {
+            if (confirm('Êtes-vous sûr de vouloir effacer toutes les données ? Cette action est irréversible.')) {
+                // Effacer tous les champs
+                document.querySelectorAll('input, textarea').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Effacer le localStorage
+                localStorage.removeItem('composerClientData');
+                
+                // Mettre à jour la progression
+                updateProgress();
+                
+                alert('Formulaire réinitialisé');
+            }
+        }
+
+        // Auto-resize des textareas
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Restaurer les données sauvegardées
+            restoreData();
+            
+            // Ajouter les écouteurs d'événements
+            const allInputs = document.querySelectorAll('.question-input, .project-field input');
+            
+            allInputs.forEach(input => {
+                // Sauvegarde automatique
+                input.addEventListener('input', () => {
+                    updateProgress();
+                    autoSave();
+                    
+                    // Auto-resize pour les textareas
+                    if (input.tagName === 'TEXTAREA') {
+                        autoResize(input);
+                    }
+                });
+                
+                // Auto-resize initial
+                if (input.tagName === 'TEXTAREA' && input.value) {
+                    autoResize(input);
+                }
+            });
+            
+            // Raccourcis clavier
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+S pour sauvegarder
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveManually();
+                }
+                
+                // Ctrl+E pour exporter
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    exportData();
+                }
+            });
+            
+            // Export JSON pour backup
+            window.exportJSON = function() {
+                const data = {
+                    clientName: document.getElementById('client-name').value,
+                    projectName: document.getElementById('project-name').value,
+                    contactDate: document.getElementById('contact-date').value,
+                    contactPerson: document.getElementById('contact-person').value,
+                    fields: {}
+                };
+                
+                document.querySelectorAll('.question-input').forEach(input => {
+                    data.fields[input.dataset.field] = input.value;
+                });
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const clientName = document.getElementById('client-name').value || 'client';
+                const projectName = document.getElementById('project-name').value || 'projet';
+                a.download = `backup-${clientName.replace(/\s+/g, '-')}-${projectName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            };
+        });
+
+        // Fonction pour imprimer
+        window.printForm = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>
