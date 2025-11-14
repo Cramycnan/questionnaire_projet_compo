@@ -234,10 +234,279 @@
             background: #4299e1;
             color: white;
         }
-        
+
         .btn-import:hover {
             background: #3182ce;
             transform: translateY(-2px);
+        }
+
+        .btn-import-excel {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-import-excel:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        /* Modal pour l'import Excel */
+        .import-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .import-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .import-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .import-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .import-modal-header h3 {
+            margin: 0;
+            color: #667eea;
+            font-size: 1.4em;
+        }
+
+        .import-modal-section {
+            margin-bottom: 25px;
+        }
+
+        .import-modal-section h4 {
+            color: #5f72bd;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .import-mode-option {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .import-mode-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .import-mode-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .import-mode-option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .import-mode-option label {
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .import-mode-description {
+            margin-top: 8px;
+            margin-left: 28px;
+            font-size: 0.9em;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .import-warning {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            margin-left: 28px;
+            display: flex;
+            align-items: start;
+            gap: 8px;
+        }
+
+        .import-warning-icon {
+            color: #e53e3e;
+            font-size: 1.2em;
+        }
+
+        .import-warning-text {
+            font-size: 0.9em;
+            color: #c53030;
+            font-weight: 500;
+        }
+
+        .import-pieces-info {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .import-pieces-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .import-pieces-column {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .import-pieces-column h5 {
+            margin: 0 0 8px 0;
+            color: #5f72bd;
+            font-size: 0.95em;
+        }
+
+        .import-pieces-count {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .import-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .import-modal-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel-import {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-cancel-import:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-confirm-import {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-confirm-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        /* Notification d'annulation */
+        .undo-notification {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: #4299e1;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .undo-notification.show {
+            display: flex;
+        }
+
+        .undo-notification button {
+            background: white;
+            color: #4299e1;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .undo-notification button:hover {
+            transform: scale(1.05);
         }
         
         .progress-indicator {
@@ -990,7 +1259,8 @@
             <button class="btn-save" onclick="saveManually()">💾 Sauvegarder</button>
             <button class="btn-export" onclick="exportExcel()">📊 Exporter Excel</button>
             <button class="btn-export" onclick="exportData()" style="background: #9b59b6;">📄 Exporter TXT</button>
-            <button class="btn-import" onclick="importData()">📥 Importer</button>
+            <button class="btn-import" onclick="importData()">📥 Importer JSON</button>
+            <button class="btn-import-excel" onclick="importExcelFile()">📊 Importer Excel</button>
             <button class="btn-reset" onclick="resetForm()">🔄 Réinitialiser</button>
         </div>
     </div>
@@ -1003,6 +1273,107 @@
             <div style="font-weight: 600; color: #4a5568;">Progression</div>
             <div style="font-size: 0.9em; color: #718096;" id="progress-text">0/46 champs</div>
         </div>
+    </div>
+
+    <!-- Modal d'import Excel -->
+    <div class="import-modal" id="importModal">
+        <div class="import-modal-content">
+            <div class="import-modal-header">
+                <span style="font-size: 1.5em;">📊</span>
+                <h3>Importer depuis Excel</h3>
+            </div>
+
+            <div class="import-modal-section">
+                <h4>⚙️ Mode de synchronisation</h4>
+
+                <div class="import-mode-option selected" onclick="selectImportMode('merge')">
+                    <label>
+                        <input type="radio" name="import-mode" value="merge" checked>
+                        <span>Fusion intelligente (recommandé)</span>
+                    </label>
+                    <div class="import-mode-description">
+                        ✓ Les champs Excel remplis remplacent les champs du formulaire<br>
+                        ✓ Les champs Excel vides sont ignorés<br>
+                        ✓ Vos notes et ajouts sont conservés<br>
+                        ✓ Travail en parallèle possible
+                    </div>
+                </div>
+
+                <div class="import-mode-option" onclick="selectImportMode('replace')">
+                    <label>
+                        <input type="radio" name="import-mode" value="replace">
+                        <span>Écrasement total</span>
+                    </label>
+                    <div class="import-mode-description">
+                        Le fichier Excel remplace TOUTES les données actuelles
+                    </div>
+                    <div class="import-warning">
+                        <span class="import-warning-icon">⚠️</span>
+                        <span class="import-warning-text">Toutes les données actuelles seront perdues et remplacées par le contenu du Excel</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="import-modal-section">
+                <h4>🎵 Morceaux de musique</h4>
+
+                <div class="import-pieces-info">
+                    <div class="import-pieces-compare">
+                        <div class="import-pieces-column">
+                            <h5>📋 Formulaire actuel</h5>
+                            <div class="import-pieces-count" id="currentPiecesCount">-</div>
+                            <div style="font-size: 0.85em; color: #718096;">morceaux</div>
+                        </div>
+                        <div class="import-pieces-column">
+                            <h5>📊 Fichier Excel</h5>
+                            <div class="import-pieces-count" id="excelPiecesCount">-</div>
+                            <div style="font-size: 0.85em; color: #718096;">morceaux</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="import-mode-option selected" onclick="selectPiecesMode('replace')">
+                    <label>
+                        <input type="radio" name="pieces-mode" value="replace" checked>
+                        <span>Remplacer tous les morceaux</span>
+                    </label>
+                    <div class="import-mode-description">
+                        Les morceaux du Excel deviennent la référence (recommandé)
+                    </div>
+                </div>
+
+                <div class="import-mode-option" onclick="selectPiecesMode('add')">
+                    <label>
+                        <input type="radio" name="pieces-mode" value="add">
+                        <span>Ajouter aux morceaux existants</span>
+                    </label>
+                    <div class="import-mode-description">
+                        Conserve les morceaux actuels et ajoute ceux du Excel
+                    </div>
+                </div>
+
+                <div class="import-mode-option" onclick="selectPiecesMode('ignore')">
+                    <label>
+                        <input type="radio" name="pieces-mode" value="ignore">
+                        <span>Ignorer les morceaux du Excel</span>
+                    </label>
+                    <div class="import-mode-description">
+                        Garder uniquement les morceaux actuels du formulaire
+                    </div>
+                </div>
+            </div>
+
+            <div class="import-modal-actions">
+                <button class="btn-cancel-import" onclick="closeImportModal()">Annuler</button>
+                <button class="btn-confirm-import" onclick="confirmImport()">Importer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification d'annulation -->
+    <div class="undo-notification" id="undoNotification">
+        <span>✅ Import réussi - <span id="importSummary"></span></span>
+        <button onclick="undoImport()">↶ Annuler</button>
     </div>
 
     <script>
@@ -1755,7 +2126,443 @@
             XLSX.writeFile(wb, fileName);
         }
 
-        // Fonction d'import
+        // ============================================
+        // IMPORT EXCEL - Synchronisation bidirectionnelle
+        // ============================================
+
+        // Variables globales pour l'import
+        let excelDataToImport = null;
+        let backupBeforeImport = null;
+        let undoTimer = null;
+
+        // Fonction pour ouvrir le sélecteur de fichier Excel
+        function importExcelFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx, .xls';
+
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    try {
+                        // Lire le fichier Excel avec XLSX.js
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // Parser le fichier Excel
+                        excelDataToImport = parseExcelFile(workbook);
+
+                        // Afficher la modale avec les options
+                        showImportModal();
+
+                    } catch (error) {
+                        console.error('Erreur lors de la lecture du fichier Excel:', error);
+                        showNotification('❌ Erreur : Fichier Excel invalide ou corrompu', 'error');
+                    }
+                };
+
+                reader.readAsArrayBuffer(file);
+            };
+
+            input.click();
+        }
+
+        // Parser le fichier Excel et extraire les données
+        function parseExcelFile(workbook) {
+            const excelData = {
+                projectInfo: {},
+                fields: {},
+                musicPieces: []
+            };
+
+            try {
+                // Fonction utilitaire pour extraire une valeur de cellule
+                const getCellValue = (sheet, row, col) => {
+                    const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                    const cell = sheet[cellAddress];
+                    if (!cell) return '';
+                    return cell.v !== undefined ? String(cell.v).trim() : '';
+                };
+
+                // Onglet 2 : Projet (Informations générales)
+                if (workbook.SheetNames.includes('📋 Projet')) {
+                    const sheet = workbook.Sheets['📋 Projet'];
+                    const mapping = [
+                        { row: 3, field: 'project-type' },
+                        { row: 4, field: 'project-duration' },
+                        { row: 5, field: 'synopsis' },
+                        { row: 6, field: 'target-audience' },
+                        { row: 7, field: 'platforms' }
+                    ];
+
+                    mapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+                // Onglet 3 : Budget & Planning
+                if (workbook.SheetNames.includes('💰 Budget & Planning')) {
+                    const sheet = workbook.Sheets['💰 Budget & Planning'];
+                    const budgetMapping = [
+                        { row: 3, field: 'budget-total' },
+                        { row: 4, field: 'payment-mode' },
+                        { row: 5, field: 'payment-terms' },
+                        { row: 6, field: 'musicians-budget' },
+                        { row: 7, field: 'additional-costs' }
+                    ];
+
+                    budgetMapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+
+                    const planningMapping = [
+                        { row: 10, field: 'start-date' },
+                        { row: 11, field: 'deadline' },
+                        { row: 12, field: 'milestones' },
+                        { row: 13, field: 'availability' },
+                        { row: 14, field: 'flexibility' }
+                    ];
+
+                    planningMapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+                // Onglet 4 : Morceaux musicaux
+                if (workbook.SheetNames.includes('🎼 Morceaux')) {
+                    const sheet = workbook.Sheets['🎼 Morceaux'];
+                    const range = XLSX.utils.decode_range(sheet['!ref']);
+
+                    // Commencer à la ligne 3 (après les en-têtes)
+                    for (let row = 3; row <= range.e.r; row++) {
+                        const title = getCellValue(sheet, row, 0);
+
+                        // Si pas de titre, on arrête (fin des morceaux)
+                        if (!title) break;
+
+                        const piece = {
+                            id: `piece_imported_${Date.now()}_${row}`,
+                            title: title,
+                            duration: getCellValue(sheet, row, 1),
+                            type: getCellValue(sheet, row, 2),
+                            genre: getCellValue(sheet, row, 3),
+                            instrumentation: getCellValue(sheet, row, 4),
+                            mood: getCellValue(sheet, row, 5),
+                            constraints: getCellValue(sheet, row, 6),
+                            variations: getCellValue(sheet, row, 7),
+                            references: '',
+                            notes: ''
+                        };
+
+                        // Convertir le type en format interne
+                        if (piece.type === 'Diégétique') piece.type = 'diegetic';
+                        else if (piece.type === 'Extra-diégétique') piece.type = 'extra-diegetic';
+                        else if (piece.type === 'Mixte') piece.type = 'mixed';
+
+                        excelData.musicPieces.push(piece);
+                    }
+                }
+
+                // Onglet 5 : Besoins Musicaux
+                if (workbook.SheetNames.includes('🎵 Besoins Musicaux')) {
+                    const sheet = workbook.Sheets['🎵 Besoins Musicaux'];
+                    const mapping = [
+                        { row: 3, field: 'music-duration' },
+                        { row: 4, field: 'themes-count' },
+                        { row: 5, field: 'music-style' },
+                        { row: 6, field: 'references' }
+                    ];
+
+                    mapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+                // Onglet 6 : Droits
+                if (workbook.SheetNames.includes('⚖️ Droits')) {
+                    const sheet = workbook.Sheets['⚖️ Droits'];
+                    const mapping = [
+                        { row: 3, field: 'sacem' },
+                        { row: 4, field: 'rights-transfer' },
+                        { row: 5, field: 'exploitation-rights' },
+                        { row: 6, field: 'credits' },
+                        { row: 7, field: 'portfolio-use' },
+                        { row: 8, field: 'contract' }
+                    ];
+
+                    mapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+                // Onglet 7 : Technique
+                if (workbook.SheetNames.includes('🎧 Technique')) {
+                    const sheet = workbook.Sheets['🎧 Technique'];
+                    const mapping = [
+                        { row: 3, field: 'sound-engineer' },
+                        { row: 4, field: 'delivery-format' },
+                        { row: 5, field: 'stems' },
+                        { row: 6, field: 'broadcast-standards' },
+                        { row: 7, field: 'sync-needs' },
+                        { row: 8, field: 'video-format' }
+                    ];
+
+                    mapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+                // Onglet 8 : Collaboration
+                if (workbook.SheetNames.includes('🤝 Collaboration')) {
+                    const sheet = workbook.Sheets['🤝 Collaboration'];
+                    const mapping = [
+                        { row: 3, field: 'main-contact' },
+                        { row: 4, field: 'validation-process' },
+                        { row: 5, field: 'revisions' },
+                        { row: 6, field: 'communication' },
+                        { row: 7, field: 'progress-meetings' },
+                        { row: 8, field: 'recording-sessions' }
+                    ];
+
+                    mapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+                // Onglet 9 : Compléments
+                if (workbook.SheetNames.includes('➕ Compléments')) {
+                    const sheet = workbook.Sheets['➕ Compléments'];
+                    const mapping = [
+                        { row: 3, field: 'temp-track' },
+                        { row: 4, field: 'constraints' },
+                        { row: 5, field: 'future-needs' },
+                        { row: 6, field: 'access-materials' },
+                        { row: 7, field: 'billing-info' },
+                        { row: 8, field: 'additional-notes' }
+                    ];
+
+                    mapping.forEach(item => {
+                        const value = getCellValue(sheet, item.row, 1);
+                        if (value) excelData.fields[item.field] = value;
+                    });
+                }
+
+            } catch (error) {
+                console.error('Erreur lors du parsing du Excel:', error);
+                throw error;
+            }
+
+            return excelData;
+        }
+
+        // Afficher la modale d'import
+        function showImportModal() {
+            const modal = document.getElementById('importModal');
+
+            // Compter les morceaux actuels et dans le Excel
+            const currentPieces = document.querySelectorAll('.music-piece-container').length;
+            const excelPieces = excelDataToImport.musicPieces.length;
+
+            document.getElementById('currentPiecesCount').textContent = currentPieces;
+            document.getElementById('excelPiecesCount').textContent = excelPieces;
+
+            modal.classList.add('show');
+        }
+
+        // Fermer la modale
+        function closeImportModal() {
+            const modal = document.getElementById('importModal');
+            modal.classList.remove('show');
+            excelDataToImport = null;
+        }
+
+        // Sélection du mode d'import
+        function selectImportMode(mode) {
+            document.querySelectorAll('.import-mode-option').forEach((option, index) => {
+                if (index < 2) { // Les 2 premières options sont pour le mode d'import
+                    option.classList.remove('selected');
+                }
+            });
+
+            const selectedOption = event.currentTarget;
+            selectedOption.classList.add('selected');
+            selectedOption.querySelector('input[type="radio"]').checked = true;
+        }
+
+        // Sélection du mode pour les morceaux
+        function selectPiecesMode(mode) {
+            document.querySelectorAll('.import-mode-option').forEach((option, index) => {
+                if (index >= 2) { // Les options 3, 4, 5 sont pour les morceaux
+                    option.classList.remove('selected');
+                }
+            });
+
+            const selectedOption = event.currentTarget;
+            selectedOption.classList.add('selected');
+            selectedOption.querySelector('input[type="radio"]').checked = true;
+        }
+
+        // Confirmer et appliquer l'import
+        function confirmImport() {
+            if (!excelDataToImport) return;
+
+            // Sauvegarder l'état actuel pour pouvoir annuler
+            backupBeforeImport = {
+                clientName: document.getElementById('client-name').value,
+                projectName: document.getElementById('project-name').value,
+                contactDate: document.getElementById('contact-date').value,
+                contactPerson: document.getElementById('contact-person').value,
+                fields: {}
+            };
+
+            document.querySelectorAll('.question-input').forEach(input => {
+                backupBeforeImport.fields[input.dataset.field] = input.value;
+            });
+
+            backupBeforeImport.fields.musicPieces = getMusicPiecesData();
+
+            // Récupérer les modes sélectionnés
+            const importMode = document.querySelector('input[name="import-mode"]:checked').value;
+            const piecesMode = document.querySelector('input[name="pieces-mode"]:checked').value;
+
+            // Appliquer l'import selon le mode
+            let updatedFields = 0;
+
+            if (importMode === 'replace') {
+                // Mode écrasement total : vider tous les champs d'abord
+                document.querySelectorAll('.question-input').forEach(input => {
+                    input.value = '';
+                });
+            }
+
+            // Appliquer les champs (fusion ou remplacement)
+            Object.keys(excelDataToImport.fields).forEach(fieldName => {
+                const value = excelDataToImport.fields[fieldName];
+
+                // En mode fusion, ne remplacer que si la valeur Excel n'est pas vide
+                if (importMode === 'merge' && (!value || value.trim() === '')) {
+                    return; // Ignorer ce champ
+                }
+
+                const input = document.querySelector(`[data-field="${fieldName}"]`);
+                if (input) {
+                    input.value = value;
+                    updatedFields++;
+
+                    // Marquer comme rempli et auto-resize
+                    if (value.trim() !== '') {
+                        input.classList.add('filled');
+                    }
+                    if (input.tagName === 'TEXTAREA') {
+                        autoResize(input);
+                    }
+                }
+            });
+
+            // Gérer les morceaux de musique selon le mode
+            const musicPiecesContainer = document.getElementById('music-pieces-container');
+
+            if (piecesMode === 'replace') {
+                // Remplacer tous les morceaux
+                musicPiecesContainer.innerHTML = '';
+                excelDataToImport.musicPieces.forEach(piece => {
+                    addMusicPiece({ ...piece, skipSave: true });
+                });
+            } else if (piecesMode === 'add') {
+                // Ajouter aux morceaux existants
+                excelDataToImport.musicPieces.forEach(piece => {
+                    addMusicPiece({ ...piece, skipSave: true });
+                });
+            } else if (piecesMode === 'ignore') {
+                // Ne rien faire avec les morceaux du Excel
+            }
+
+            // Mettre à jour la progression
+            updateProgress();
+
+            // Sauvegarder
+            autoSave();
+
+            // Fermer la modale
+            closeImportModal();
+
+            // Afficher la notification avec bouton d'annulation
+            const importSummary = `${updatedFields} champs mis à jour`;
+            document.getElementById('importSummary').textContent = importSummary;
+
+            const undoNotif = document.getElementById('undoNotification');
+            undoNotif.classList.add('show');
+
+            // Auto-masquer après 30 secondes
+            clearTimeout(undoTimer);
+            undoTimer = setTimeout(() => {
+                undoNotif.classList.remove('show');
+                backupBeforeImport = null;
+            }, 30000);
+
+            showNotification('✅ Import réussi : ' + importSummary, 'success');
+        }
+
+        // Annuler le dernier import
+        function undoImport() {
+            if (!backupBeforeImport) {
+                showNotification('⚠️ Aucun import à annuler', 'warning');
+                return;
+            }
+
+            // Restaurer les données sauvegardées
+            document.getElementById('client-name').value = backupBeforeImport.clientName || '';
+            document.getElementById('project-name').value = backupBeforeImport.projectName || '';
+            document.getElementById('contact-date').value = backupBeforeImport.contactDate || '';
+            document.getElementById('contact-person').value = backupBeforeImport.contactPerson || '';
+
+            Object.keys(backupBeforeImport.fields).forEach(field => {
+                if (field === 'musicPieces') return;
+
+                const input = document.querySelector(`[data-field="${field}"]`);
+                if (input) {
+                    input.value = backupBeforeImport.fields[field];
+                    if (input.tagName === 'TEXTAREA') {
+                        autoResize(input);
+                    }
+                }
+            });
+
+            // Restaurer les morceaux
+            const musicPiecesContainer = document.getElementById('music-pieces-container');
+            musicPiecesContainer.innerHTML = '';
+
+            if (backupBeforeImport.fields.musicPieces && Array.isArray(backupBeforeImport.fields.musicPieces)) {
+                backupBeforeImport.fields.musicPieces.forEach(pieceData => {
+                    addMusicPiece({ ...pieceData, skipSave: true });
+                });
+            }
+
+            updateProgress();
+            autoSave();
+
+            // Masquer la notification
+            const undoNotif = document.getElementById('undoNotification');
+            undoNotif.classList.remove('show');
+
+            clearTimeout(undoTimer);
+            backupBeforeImport = null;
+
+            showNotification('↶ Import annulé, données restaurées', 'success');
+        }
+
+        // Fonction d'import JSON (renommée pour clarté)
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
