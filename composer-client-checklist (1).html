@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiche Client - Compositeur Musique à l'Image</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+            integrity="sha512-bseags5a+imbt2TNS2DjgSh9CznyKvnr1Y0TSKZtB3vMp7VbTnXUWAgwGh0jqQ3gZEQ5PwdY9CQjGhJQF5gCdMg=="
+            crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -290,7 +293,143 @@
         .save-status.show {
             opacity: 1;
         }
-        
+
+        .save-status.error {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .save-status.warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        /* Mode toggle button */
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .mode-toggle:hover {
+            background: #f7faff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .mode-toggle.simple-mode {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-toggle.simple-mode:hover {
+            background: #5f72bd;
+        }
+
+        /* Mode simplifié - cacher les champs secondaires */
+        body.simple-mode .question-item.secondary {
+            display: none;
+        }
+
+        body.simple-mode .section.secondary {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Badges de priorité */
+        .priority-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e53e3e;
+            color: white;
+            font-size: 0.75em;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .question-item.priority {
+            position: relative;
+            border: 2px solid #e53e3e22;
+        }
+
+        /* UX améliorée */
+        .question-input {
+            font-size: 1.05em;
+            padding: 12px 15px;
+            min-height: 70px;
+        }
+
+        .question-label {
+            font-size: 1em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 28px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 22px;
+        }
+
+        .quick-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #856404;
+            font-style: normal;
+        }
+
+        /* Focus amélioré pour usage en rendez-vous */
+        .question-item:focus-within {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+            border: 2px solid #667eea22;
+        }
+
+        .question-item.priority:focus-within {
+            border: 2px solid #e53e3e44;
+        }
+
+        /* Indicateur de progression plus visible en mode essentiel */
+        .progress-indicator.essential-mode {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .progress-indicator.essential-mode .progress-circle {
+            background: conic-gradient(white 0deg, white var(--progress), rgba(255,255,255,0.3) var(--progress));
+            color: #333;
+        }
+
+        .progress-indicator.essential-mode .progress-circle::before {
+            background: #667eea;
+        }
+
         @media (max-width: 768px) {
             .container {
                 border-radius: 0;
@@ -536,7 +675,12 @@
 </head>
 <body>
     <div class="save-status" id="saveStatus">✓ Sauvegardé automatiquement</div>
-    
+
+    <button class="mode-toggle" id="modeToggle" onclick="toggleSimpleMode()">
+        <span class="icon">🎯</span>
+        <span id="modeText">Mode Essentiel</span>
+    </button>
+
     <div class="container">
         <header>
             <h1>🎵 Fiche Client - Projet Musical</h1>
@@ -568,28 +712,31 @@
             <!-- 1. Informations sur le projet -->
             <div class="section">
                 <h2><span class="icon">📋</span> Informations générales sur le projet</h2>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Type de projet (film, pub, documentaire, série, jeu vidéo, etc.)</label>
                     <textarea class="question-input" data-field="project-type" placeholder="Précisez le type de projet et son format..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Durée totale du projet</label>
                     <textarea class="question-input" data-field="project-duration" placeholder="Ex: 52 minutes, 3 épisodes de 26 minutes..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Synopsis ou description du projet</label>
                     <textarea class="question-input" data-field="synopsis" placeholder="Résumé de l'histoire, thématiques principales..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Public cible</label>
                     <textarea class="question-input" data-field="target-audience" placeholder="Âge, démographie, contexte de diffusion..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Plateforme(s) de diffusion prévue(s)</label>
                     <textarea class="question-input" data-field="platforms" placeholder="Cinéma, TV, streaming, web..."></textarea>
                 </div>
@@ -598,28 +745,30 @@
             <!-- 2. Aspects financiers -->
             <div class="section important">
                 <h2><span class="icon">💰</span> Aspects financiers et budget</h2>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Budget total alloué à la musique</label>
                     <textarea class="question-input" data-field="budget-total" placeholder="Montant en euros, HT ou TTC..."></textarea>
+                    <div class="quick-note">Information cruciale à obtenir dès le premier contact</div>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Mode de rémunération (forfait, tarif journalier, royalties)</label>
                     <textarea class="question-input" data-field="payment-mode" placeholder="Détaillez le mode de rémunération choisi..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Modalités de paiement (acompte, échéances)</label>
                     <textarea class="question-input" data-field="payment-terms" placeholder="Ex: 30% à la signature, 40% à mi-parcours, 30% à la livraison..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Budget pour musiciens additionnels si nécessaire</label>
                     <textarea class="question-input" data-field="musicians-budget" placeholder="Budget séparé ou inclus, montants..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Frais annexes inclus ou non (studio, déplacements)</label>
                     <textarea class="question-input" data-field="additional-costs" placeholder="Liste des frais couverts ou à prévoir..."></textarea>
                 </div>
@@ -664,62 +813,64 @@
             <!-- 4. Planning -->
             <div class="section">
                 <h2><span class="icon">📅</span> Planning et deadlines</h2>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Date de début du projet</label>
                     <textarea class="question-input" data-field="start-date" placeholder="Date de début de composition..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Date de livraison finale</label>
                     <textarea class="question-input" data-field="deadline" placeholder="Deadline finale et impératifs..."></textarea>
+                    <div class="quick-note">Date critique à clarifier absolument</div>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Étapes intermédiaires et validations</label>
                     <textarea class="question-input" data-field="milestones" placeholder="Maquettes, versions intermédiaires, dates de validation..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Disponibilité pour les sessions de travail/feedback</label>
                     <textarea class="question-input" data-field="availability" placeholder="Créneaux privilégiés, fuseau horaire..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Flexibilité du planning en cas d'imprévu</label>
                     <textarea class="question-input" data-field="flexibility" placeholder="Marge de manœuvre, dates butoirs absolues..."></textarea>
                 </div>
             </div>
 
             <!-- 5. Aspects techniques -->
-            <div class="section">
+            <div class="section secondary">
                 <h2><span class="icon">🎧</span> Aspects techniques et production</h2>
-                
+
                 <div class="question-item">
                     <label class="question-label">Présence d'un ingénieur du son dédié ou besoin de mixage/mastering</label>
                     <textarea class="question-input" data-field="sound-engineer" placeholder="Qui s'occupe du mixage et mastering, coordination..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
                     <label class="question-label">Format de livraison souhaité</label>
                     <textarea class="question-input" data-field="delivery-format" placeholder="WAV 48kHz/24bit, AIFF, MP3, résolution..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
                     <label class="question-label">Livraison en stems séparés ou mix stéréo</label>
                     <textarea class="question-input" data-field="stems" placeholder="Nombre de stems, organisation (cordes, vents, percu...)"></textarea>
                 </div>
-                
+
                 <div class="question-item">
                     <label class="question-label">Normes de diffusion spécifiques</label>
                     <textarea class="question-input" data-field="broadcast-standards" placeholder="EBU R128, loudness cible, normes TV..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
                     <label class="question-label">Besoin de synchronisation précise avec l'image</label>
                     <textarea class="question-input" data-field="sync-needs" placeholder="Synchro au frame près, points de synchro importants..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
                     <label class="question-label">Format vidéo pour le travail</label>
                     <textarea class="question-input" data-field="video-format" placeholder="Codec (H264, ProRes), résolution, framerate, timecode..."></textarea>
@@ -729,41 +880,43 @@
             <!-- 6. Droits et aspects juridiques -->
             <div class="section important">
                 <h2><span class="icon">⚖️</span> Droits et aspects juridiques</h2>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Dépôt SACEM acceptable ou problématique</label>
                     <textarea class="question-input" data-field="sacem" placeholder="Position sur le dépôt SACEM, gestion des droits..."></textarea>
                     <div class="quick-note">Point crucial à clarifier dès le début</div>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item priority">
+                    <div class="priority-badge">ESSENTIEL</div>
                     <label class="question-label">Cession de droits souhaitée</label>
                     <textarea class="question-input" data-field="rights-transfer" placeholder="Totale, partielle, durée, territoires..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Droits d'exploitation</label>
                     <textarea class="question-input" data-field="exploitation-rights" placeholder="Territoires, durée, supports, usages autorisés..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Crédit au générique</label>
                     <textarea class="question-input" data-field="credits" placeholder="Forme du crédit, position au générique..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Possibilité d'utiliser la musique pour portfolio personnel</label>
                     <textarea class="question-input" data-field="portfolio-use" placeholder="Droits de présentation, extraits autorisés..."></textarea>
                 </div>
-                
-                <div class="question-item">
+
+                <div class="question-item secondary">
                     <label class="question-label">Contrat de commande ou de cession à établir</label>
                     <textarea class="question-input" data-field="contract" placeholder="Type de contrat, qui le rédige, points spécifiques..."></textarea>
                 </div>
             </div>
 
             <!-- 7. Collaboration -->
-            <div class="section">
+            <div class="section secondary">
                 <h2><span class="icon">🤝</span> Modalités de collaboration</h2>
                 
                 <div class="question-item">
@@ -798,7 +951,7 @@
             </div>
 
             <!-- 8. Éléments complémentaires -->
-            <div class="section">
+            <div class="section secondary">
                 <h2><span class="icon">➕</span> Éléments complémentaires</h2>
                 
                 <div class="question-item">
@@ -835,7 +988,8 @@
         
         <div class="actions">
             <button class="btn-save" onclick="saveManually()">💾 Sauvegarder</button>
-            <button class="btn-export" onclick="exportData()">📄 Exporter PDF</button>
+            <button class="btn-export" onclick="exportExcel()">📊 Exporter Excel</button>
+            <button class="btn-export" onclick="exportData()" style="background: #9b59b6;">📄 Exporter TXT</button>
             <button class="btn-import" onclick="importData()">📥 Importer</button>
             <button class="btn-reset" onclick="resetForm()">🔄 Réinitialiser</button>
         </div>
@@ -854,6 +1008,12 @@
     <script>
         // Compteur global pour les morceaux
         let musicPieceCounter = 0;
+
+        // Variable pour le mode simplifié
+        let isSimpleMode = false;
+
+        // Variable pour le debouncing de la sauvegarde
+        let saveTimeout;
 
         // Fonction pour créer un nouveau morceau
         function createMusicPieceHTML(id, data = {}) {
@@ -962,7 +1122,7 @@
             inputs.forEach(input => {
                 input.addEventListener('input', () => {
                     updateProgress();
-                    autoSave();
+                    debouncedAutoSave();
 
                     // Marquer comme rempli si nécessaire
                     if (input.value.trim() !== '') {
@@ -985,7 +1145,7 @@
 
             // Ne pas sauvegarder si on est en train de restaurer les données
             if (!data?.skipSave) {
-                autoSave();
+                debouncedAutoSave();
             }
 
             updateProgress();
@@ -997,7 +1157,7 @@
                 const piece = document.getElementById(`music-piece-${id}`);
                 if (piece) {
                     piece.remove();
-                    autoSave();
+                    debouncedAutoSave();
                     updateProgress();
                 }
             }
@@ -1046,59 +1206,153 @@
             return pieces;
         }
 
-        // Fonction pour calculer la progression
-        function updateProgress() {
-            // Récupérer tous les champs (fixes + morceaux dynamiques)
-            const allInputs = document.querySelectorAll('.question-input, .project-field input, .music-piece-input');
-            const filledInputs = Array.from(allInputs).filter(input => input.value.trim() !== '');
-            const percentage = allInputs.length > 0 ? Math.round((filledInputs.length / allInputs.length) * 100) : 0;
-            const degrees = (percentage / 100) * 360;
-
-            document.getElementById('progress-percent').textContent = percentage + '%';
-            document.getElementById('progress-text').textContent = filledInputs.length + '/' + allInputs.length + ' champs';
-            document.querySelector('.progress-circle').style.setProperty('--progress', degrees + 'deg');
-
-            // Marquer les champs remplis
-            allInputs.forEach(input => {
-                if (input.value.trim() !== '') {
-                    input.classList.add('filled');
-                    if (input.parentElement.classList.contains('question-item')) {
-                        input.parentElement.classList.add('filled');
-                    }
-                } else {
-                    input.classList.remove('filled');
-                    if (input.parentElement.classList.contains('question-item')) {
-                        input.parentElement.classList.remove('filled');
-                    }
-                }
-            });
-        }
-
-        // Fonction de sauvegarde automatique
-        function autoSave() {
-            const data = {
-                clientName: document.getElementById('client-name').value,
-                projectName: document.getElementById('project-name').value,
-                contactDate: document.getElementById('contact-date').value,
-                contactPerson: document.getElementById('contact-person').value,
-                fields: {}
-            };
-
-            document.querySelectorAll('.question-input').forEach(input => {
-                data.fields[input.dataset.field] = input.value;
-            });
-
-            // Ajouter les morceaux de musique
-            data.fields.musicPieces = getMusicPiecesData();
-
-            localStorage.setItem('composerClientData', JSON.stringify(data));
-
-            // Afficher notification de sauvegarde
+        // Fonction utilitaire pour afficher les notifications
+        function showNotification(message, type = 'success') {
             const saveStatus = document.getElementById('saveStatus');
+            saveStatus.textContent = message;
+            saveStatus.className = `save-status ${type}`;
             saveStatus.classList.add('show');
             setTimeout(() => {
                 saveStatus.classList.remove('show');
-            }, 2000);
+            }, type === 'error' ? 5000 : 2000);
+        }
+
+        // Fonction pour basculer en mode simplifié
+        function toggleSimpleMode() {
+            const body = document.body;
+            const modeToggle = document.getElementById('modeToggle');
+            const modeText = document.getElementById('modeText');
+            const progressIndicator = document.querySelector('.progress-indicator');
+
+            isSimpleMode = !isSimpleMode;
+
+            if (isSimpleMode) {
+                body.classList.add('simple-mode');
+                modeToggle.classList.add('simple-mode');
+                modeText.textContent = 'Mode Complet';
+                modeToggle.querySelector('.icon').textContent = '📋';
+                progressIndicator.classList.add('essential-mode');
+            } else {
+                body.classList.remove('simple-mode');
+                modeToggle.classList.remove('simple-mode');
+                modeText.textContent = 'Mode Essentiel';
+                modeToggle.querySelector('.icon').textContent = '🎯';
+                progressIndicator.classList.remove('essential-mode');
+            }
+
+            // Recalculer la progression avec les champs visibles seulement
+            updateProgress();
+        }
+
+        // Fonction pour calculer la progression
+        function updateProgress() {
+            // En mode simplifié, ne compter que les champs prioritaires
+            let selector = '.question-input, .project-field input, .music-piece-input';
+
+            if (isSimpleMode) {
+                // Filtrer pour ne compter que les champs visibles (non secondaires)
+                const allInputs = document.querySelectorAll(selector);
+                const visibleInputs = Array.from(allInputs).filter(input => {
+                    const questionItem = input.closest('.question-item');
+                    const section = input.closest('.section');
+                    return !questionItem?.classList.contains('secondary') && !section?.classList.contains('secondary');
+                });
+                const filledInputs = visibleInputs.filter(input => input.value.trim() !== '');
+                const percentage = visibleInputs.length > 0 ? Math.round((filledInputs.length / visibleInputs.length) * 100) : 0;
+                const degrees = (percentage / 100) * 360;
+
+                document.getElementById('progress-percent').textContent = percentage + '%';
+                document.getElementById('progress-text').textContent = filledInputs.length + '/' + visibleInputs.length + ' essentiels';
+                document.querySelector('.progress-circle').style.setProperty('--progress', degrees + 'deg');
+
+                // Marquer les champs remplis
+                visibleInputs.forEach(input => {
+                    if (input.value.trim() !== '') {
+                        input.classList.add('filled');
+                        const parent = input.closest('.question-item');
+                        if (parent) parent.classList.add('filled');
+                    } else {
+                        input.classList.remove('filled');
+                        const parent = input.closest('.question-item');
+                        if (parent) parent.classList.remove('filled');
+                    }
+                });
+            } else {
+                // Mode complet - tous les champs
+                const allInputs = document.querySelectorAll(selector);
+                const filledInputs = Array.from(allInputs).filter(input => input.value.trim() !== '');
+                const percentage = allInputs.length > 0 ? Math.round((filledInputs.length / allInputs.length) * 100) : 0;
+                const degrees = (percentage / 100) * 360;
+
+                document.getElementById('progress-percent').textContent = percentage + '%';
+                document.getElementById('progress-text').textContent = filledInputs.length + '/' + allInputs.length + ' champs';
+                document.querySelector('.progress-circle').style.setProperty('--progress', degrees + 'deg');
+
+                // Marquer les champs remplis
+                allInputs.forEach(input => {
+                    if (input.value.trim() !== '') {
+                        input.classList.add('filled');
+                        const parent = input.closest('.question-item');
+                        if (parent) parent.classList.add('filled');
+                    } else {
+                        input.classList.remove('filled');
+                        const parent = input.closest('.question-item');
+                        if (parent) parent.classList.remove('filled');
+                    }
+                });
+            }
+        }
+
+        // Fonction de sauvegarde automatique avec debouncing et gestion d'erreur
+        function debouncedAutoSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(autoSave, 500); // Délai de 500ms
+        }
+
+        // Fonction de sauvegarde automatique avec gestion d'erreur
+        function autoSave() {
+            try {
+                const data = {
+                    clientName: document.getElementById('client-name').value,
+                    projectName: document.getElementById('project-name').value,
+                    contactDate: document.getElementById('contact-date').value,
+                    contactPerson: document.getElementById('contact-person').value,
+                    fields: {}
+                };
+
+                document.querySelectorAll('.question-input').forEach(input => {
+                    data.fields[input.dataset.field] = input.value;
+                });
+
+                // Ajouter les morceaux de musique
+                data.fields.musicPieces = getMusicPiecesData();
+
+                // Vérifier la taille des données avant sauvegarde
+                const dataString = JSON.stringify(data);
+                const dataSize = new Blob([dataString]).size;
+
+                // Alerte si les données approchent la limite de localStorage (environ 5-10MB selon les navigateurs)
+                if (dataSize > 3 * 1024 * 1024) { // 3MB
+                    console.warn('Données de grande taille (' + Math.round(dataSize / 1024) + 'KB), risque de quota localStorage');
+                }
+
+                localStorage.setItem('composerClientData', dataString);
+
+                // Afficher notification de sauvegarde réussie
+                showNotification('✓ Sauvegardé automatiquement');
+
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+
+                // Gestion spécifique des erreurs localStorage
+                if (error.name === 'QuotaExceededError') {
+                    showNotification('⚠️ Espace de stockage insuffisant. Exportez vos données.', 'error');
+                } else if (error.name === 'SecurityError') {
+                    showNotification('⚠️ Sauvegarde désactivée (navigation privée)', 'error');
+                } else {
+                    showNotification('⚠️ Erreur de sauvegarde. Exportez vos données.', 'error');
+                }
+            }
         }
 
         // Fonction de sauvegarde manuelle
@@ -1107,11 +1361,20 @@
             alert('Données sauvegardées avec succès !');
         }
 
-        // Fonction de restauration des données
+        // Fonction de restauration des données avec gestion d'erreur
         function restoreData() {
-            const saved = localStorage.getItem('composerClientData');
-            if (saved) {
+            try {
+                const saved = localStorage.getItem('composerClientData');
+                if (!saved) {
+                    return; // Aucune donnée sauvegardée, ce n'est pas une erreur
+                }
+
                 const data = JSON.parse(saved);
+
+                // Validation basique de la structure des données
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Format de données invalide');
+                }
 
                 document.getElementById('client-name').value = data.clientName || '';
                 document.getElementById('project-name').value = data.projectName || '';
@@ -1125,6 +1388,9 @@
                     const input = document.querySelector(`[data-field="${field}"]`);
                     if (input) {
                         input.value = data.fields[field];
+                        if (input.tagName === 'TEXTAREA') {
+                            autoResize(input);
+                        }
                     }
                 });
 
@@ -1136,6 +1402,18 @@
                 }
 
                 updateProgress();
+                showNotification('✓ Données restaurées');
+
+            } catch (error) {
+                console.error('Erreur lors de la restauration:', error);
+
+                if (error instanceof SyntaxError) {
+                    showNotification('⚠️ Données corrompues, impossible de restaurer', 'error');
+                } else if (error.name === 'SecurityError') {
+                    showNotification('⚠️ Accès aux données restreint', 'error');
+                } else {
+                    showNotification('⚠️ Erreur de restauration des données', 'warning');
+                }
             }
         }
 
@@ -1213,6 +1491,270 @@
             window.URL.revokeObjectURL(url);
         }
 
+        // Fonction utilitaire pour récupérer la valeur d'un champ
+        function getFieldValue(fieldName) {
+            const input = document.querySelector(`[data-field="${fieldName}"]`);
+            return input ? input.value : '';
+        }
+
+        // Fonction d'export Excel optimisée
+        function exportExcel() {
+            const projectName = document.getElementById('project-name').value || 'projet';
+            const clientName = document.getElementById('client-name').value || 'client';
+            const date = new Date().toLocaleDateString('fr-FR');
+
+            // Créer un nouveau workbook
+            const wb = XLSX.utils.book_new();
+
+            // ONGLET 1: DASHBOARD - Récapitulatif visuel
+            const dashboardData = [
+                ['DASHBOARD PROJET', ''],
+                ['', ''],
+                ['📊 INFORMATIONS CLÉS', ''],
+                ['Client', clientName],
+                ['Projet', projectName],
+                ['Date export', date],
+                ['Contact', document.getElementById('contact-person').value || 'Non renseigné'],
+                ['', ''],
+                ['🎯 ÉLÉMENTS ESSENTIELS', ''],
+            ];
+
+            // Ajouter les champs essentiels
+            const essentialFields = [
+                { field: 'project-type', label: 'Type de projet' },
+                { field: 'project-duration', label: 'Durée' },
+                { field: 'budget-total', label: 'Budget musique' },
+                { field: 'deadline', label: 'Deadline' },
+                { field: 'sacem', label: 'SACEM' },
+                { field: 'rights-transfer', label: 'Cession droits' }
+            ];
+
+            let filledEssentials = 0;
+            essentialFields.forEach(item => {
+                const value = getFieldValue(item.field);
+                if (value) {
+                    dashboardData.push([item.label, value]);
+                    filledEssentials++;
+                } else {
+                    dashboardData.push([item.label, '⚠️ NON RENSEIGNÉ']);
+                }
+            });
+
+            dashboardData.push(['', '']);
+            dashboardData.push(['📈 PROGRESSION', '']);
+            dashboardData.push(['Champs essentiels remplis', `${filledEssentials}/${essentialFields.length} (${Math.round(filledEssentials/essentialFields.length*100)}%)`]);
+
+            const dashboardWs = XLSX.utils.aoa_to_sheet(dashboardData);
+            XLSX.utils.book_append_sheet(wb, dashboardWs, "📊 Dashboard");
+
+            // ONGLET 2: Informations Générales
+            const generalData = [
+                ['INFORMATIONS GÉNÉRALES', ''],
+                ['', '']
+            ];
+
+            const generalFields = [
+                { field: 'project-type', label: '🎯 Type de projet' },
+                { field: 'project-duration', label: '🎯 Durée totale' },
+                { field: 'synopsis', label: '🎯 Synopsis' },
+                { field: 'target-audience', label: 'Public cible' },
+                { field: 'platforms', label: 'Plateformes de diffusion' }
+            ];
+
+            generalFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                generalData.push([item.label, value]);
+            });
+
+            const generalWs = XLSX.utils.aoa_to_sheet(generalData);
+            XLSX.utils.book_append_sheet(wb, generalWs, "📋 Projet");
+
+            // ONGLET 3: Budget & Planning
+            const budgetData = [
+                ['💰 BUDGET ET PLANNING', ''],
+                ['', ''],
+                ['ASPECTS FINANCIERS', '']
+            ];
+
+            const budgetFields = [
+                { field: 'budget-total', label: '🎯 Budget total musique' },
+                { field: 'payment-mode', label: 'Mode de rémunération' },
+                { field: 'payment-terms', label: 'Modalités de paiement' },
+                { field: 'musicians-budget', label: 'Budget musiciens additionnels' },
+                { field: 'additional-costs', label: 'Frais annexes' }
+            ];
+
+            budgetFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                budgetData.push([item.label, value]);
+            });
+
+            budgetData.push(['', '']);
+            budgetData.push(['PLANNING & DEADLINES', '']);
+
+            const planningFields = [
+                { field: 'start-date', label: 'Date de début' },
+                { field: 'deadline', label: '🎯 Date de livraison finale' },
+                { field: 'milestones', label: 'Étapes intermédiaires' },
+                { field: 'availability', label: 'Disponibilité sessions' },
+                { field: 'flexibility', label: 'Flexibilité planning' }
+            ];
+
+            planningFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                budgetData.push([item.label, value]);
+            });
+
+            const budgetWs = XLSX.utils.aoa_to_sheet(budgetData);
+            XLSX.utils.book_append_sheet(wb, budgetWs, "💰 Budget & Planning");
+
+            // ONGLET 4: Morceaux Musicaux
+            const tracksData = [['🎼 MORCEAUX MUSICAUX', '', '', '', '', '', '', '']];
+            tracksData.push(['', '', '', '', '', '', '', '']);
+            tracksData.push(['🎯 Nom du morceau', '🎯 Durée', '🎯 Type', '🎯 Genre/Style', 'Instrumentation', 'Émotions/Ambiance', 'Contraintes', 'Variations']);
+
+            const pieces = getMusicPiecesData();
+            if (pieces.length > 0) {
+                pieces.forEach(piece => {
+                    const typeLabels = {
+                        'diegetic': 'Diégétique',
+                        'extra-diegetic': 'Extra-diégétique',
+                        'mixed': 'Mixte'
+                    };
+                    tracksData.push([
+                        piece.title || '',
+                        piece.duration || '',
+                        typeLabels[piece.type] || piece.type || '',
+                        piece.genre || '',
+                        piece.instrumentation || '',
+                        piece.mood || '',
+                        piece.constraints || '',
+                        piece.variations || ''
+                    ]);
+                });
+            }
+
+            const tracksWs = XLSX.utils.aoa_to_sheet(tracksData);
+            XLSX.utils.book_append_sheet(wb, tracksWs, "🎼 Morceaux");
+
+            // ONGLET 5: Besoins Musicaux Globaux
+            const musicData = [
+                ['🎼 BESOINS MUSICAUX GLOBAUX', ''],
+                ['', '']
+            ];
+
+            const musicFields = [
+                { field: 'music-duration', label: 'Durée totale de musique' },
+                { field: 'themes-count', label: 'Nombre de thèmes' },
+                { field: 'music-style', label: 'Style(s) musical(aux)' },
+                { field: 'references', label: 'Références musicales' }
+            ];
+
+            musicFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                musicData.push([item.label, value]);
+            });
+
+            const musicWs = XLSX.utils.aoa_to_sheet(musicData);
+            XLSX.utils.book_append_sheet(wb, musicWs, "🎵 Besoins Musicaux");
+
+            // ONGLET 6: Aspects Légaux
+            const legalData = [
+                ['⚖️ DROITS ET ASPECTS JURIDIQUES', ''],
+                ['', '']
+            ];
+
+            const legalFields = [
+                { field: 'sacem', label: '🎯 Dépôt SACEM' },
+                { field: 'rights-transfer', label: '🎯 Cession de droits' },
+                { field: 'exploitation-rights', label: 'Droits d\'exploitation' },
+                { field: 'credits', label: 'Crédit au générique' },
+                { field: 'portfolio-use', label: 'Usage portfolio personnel' },
+                { field: 'contract', label: 'Contrat à établir' }
+            ];
+
+            legalFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                legalData.push([item.label, value]);
+            });
+
+            const legalWs = XLSX.utils.aoa_to_sheet(legalData);
+            XLSX.utils.book_append_sheet(wb, legalWs, "⚖️ Droits");
+
+            // ONGLET 7: Aspects Techniques
+            const techData = [
+                ['🎧 ASPECTS TECHNIQUES', ''],
+                ['', '']
+            ];
+
+            const techFields = [
+                { field: 'sound-engineer', label: 'Ingénieur du son / Mixage' },
+                { field: 'delivery-format', label: 'Format de livraison' },
+                { field: 'stems', label: 'Stems ou mix stéréo' },
+                { field: 'broadcast-standards', label: 'Normes de diffusion' },
+                { field: 'sync-needs', label: 'Synchronisation image' },
+                { field: 'video-format', label: 'Format vidéo' }
+            ];
+
+            techFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                techData.push([item.label, value]);
+            });
+
+            const techWs = XLSX.utils.aoa_to_sheet(techData);
+            XLSX.utils.book_append_sheet(wb, techWs, "🎧 Technique");
+
+            // ONGLET 8: Collaboration
+            const collabData = [
+                ['🤝 COLLABORATION', ''],
+                ['', '']
+            ];
+
+            const collabFields = [
+                { field: 'main-contact', label: 'Interlocuteur principal' },
+                { field: 'validation-process', label: 'Processus de validation' },
+                { field: 'revisions', label: 'Nombre de révisions' },
+                { field: 'communication', label: 'Mode de communication' },
+                { field: 'progress-meetings', label: 'Fréquence points avancement' },
+                { field: 'recording-sessions', label: 'Sessions d\'enregistrement' }
+            ];
+
+            collabFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                collabData.push([item.label, value]);
+            });
+
+            const collabWs = XLSX.utils.aoa_to_sheet(collabData);
+            XLSX.utils.book_append_sheet(wb, collabWs, "🤝 Collaboration");
+
+            // ONGLET 9: Compléments
+            const extraData = [
+                ['➕ ÉLÉMENTS COMPLÉMENTAIRES', ''],
+                ['', '']
+            ];
+
+            const extraFields = [
+                { field: 'temp-track', label: 'Musique temporaire existante' },
+                { field: 'constraints', label: 'Contraintes créatives' },
+                { field: 'future-needs', label: 'Besoins futurs' },
+                { field: 'access-materials', label: 'Accès rushes/version travail' },
+                { field: 'billing-info', label: 'Infos facturation' },
+                { field: 'additional-notes', label: 'Notes supplémentaires' }
+            ];
+
+            extraFields.forEach(item => {
+                const value = getFieldValue(item.field) || '';
+                extraData.push([item.label, value]);
+            });
+
+            const extraWs = XLSX.utils.aoa_to_sheet(extraData);
+            XLSX.utils.book_append_sheet(wb, extraWs, "➕ Compléments");
+
+            // Sauvegarder le fichier
+            const fileName = `Fiche-Client-${clientName.replace(/\s+/g, '-')}-${projectName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
         // Fonction d'import
         function importData() {
             const input = document.createElement('input');
@@ -1286,17 +1828,17 @@
             const allInputs = document.querySelectorAll('.question-input, .project-field input');
             
             allInputs.forEach(input => {
-                // Sauvegarde automatique
+                // Sauvegarde automatique avec debouncing
                 input.addEventListener('input', () => {
                     updateProgress();
-                    autoSave();
-                    
+                    debouncedAutoSave();
+
                     // Auto-resize pour les textareas
                     if (input.tagName === 'TEXTAREA') {
                         autoResize(input);
                     }
                 });
-                
+
                 // Auto-resize initial
                 if (input.tagName === 'TEXTAREA' && input.value) {
                     autoResize(input);
