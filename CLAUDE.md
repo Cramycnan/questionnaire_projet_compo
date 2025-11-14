@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a single-page HTML application providing a comprehensive client questionnaire for music composers working on film, TV, video games, and other media projects. The form is in French and helps composers gather all essential information before starting a composition project.
 
 **Tech Stack**: Pure HTML with embedded CSS and vanilla JavaScript - no build tools, frameworks, or dependencies.
-**External Library**: XLSX.js (v0.18.5) loaded via CDN for Excel export functionality.
+**External Library**: XLSX.js (v0.18.5) loaded via CDN for Excel export/import functionality (bidirectional sync).
 
 ## Development
 
@@ -40,7 +40,7 @@ After editing, open the file in a browser and manually test:
 - Auto-save functionality with debouncing (500ms delay)
 - Progress calculation (dynamic based on mode)
 - Mode toggle (Essential vs Complete)
-- Export to Excel (9 tabs)
+- **Excel bidirectional sync**: Export to Excel (9 tabs) + Import from Excel (fusion/replace modes)
 - Export to text file
 - Import/Export JSON backup
 - Form reset functionality
@@ -48,6 +48,8 @@ After editing, open the file in a browser and manually test:
 - Priority badges display
 - Quick notes visibility
 - Error handling (QuotaExceeded, SecurityError)
+- Import modal interactions (mode selection, pieces handling)
+- Undo import functionality (30s window)
 
 ## Architecture
 
@@ -142,6 +144,41 @@ Creates a professional `.xlsx` file with **9 themed tabs**:
 - 6 essential fields with status (filled or ⚠️ NON RENSEIGNÉ)
 - Progress indicator (X/6 essential fields)
 
+#### Excel Import (NEW - Bidirectional Sync)
+Imports data from `.xlsx` files with **intelligent merge or full replacement**:
+
+**Import Modal with 2 sections:**
+
+**1. Synchronization Mode:**
+- **Fusion intelligente (default)**: Smart merge
+  - Excel filled fields → replace form fields
+  - Excel empty fields → ignored (keeps form data)
+  - Preserves notes added since export
+  - Enables parallel work (composer + director)
+- **Écrasement total**: Full replacement
+  - Excel completely replaces ALL form data
+  - Warning displayed before confirmation
+
+**2. Music Pieces Handling:**
+- **Replace all**: Excel pieces become reference (recommended)
+- **Add to existing**: Keeps current pieces + adds Excel pieces
+- **Ignore Excel pieces**: Keeps only current form pieces
+
+**Features:**
+- Parses all 9 Excel tabs automatically
+- Backup created before import (enables undo)
+- 30-second undo window after import
+- Summary notification: "X fields updated"
+- Type conversion (Diégétique → diegetic, etc.)
+- Error handling for corrupt/invalid files
+
+**Supported workflow:**
+1. Export Excel → Send to director
+2. Director modifies budget/deadline in Excel
+3. Composer adds technical notes in form (parallel work)
+4. Import Excel with merge mode
+5. Result: Budget updated + notes preserved ✓
+
 #### Text Export
 Creates a formatted `.txt` file with all filled responses, organized by sections.
 
@@ -202,8 +239,20 @@ Creates a formatted `.txt` file with all filled responses, organized by sections
 - `exportData()`: Exports form data to formatted text file
 - `exportExcel()`: Creates Excel file with 9 tabs
 - `getFieldValue(fieldName)`: Helper to retrieve field values
-- `importData()`: Imports data from JSON file
 - `resetForm()`: Clears all fields and localStorage
+
+### Import Functions (Excel Bidirectional Sync)
+- `importExcelFile()`: Opens file picker and triggers Excel file read
+- `parseExcelFile(workbook)`: Parses 9 Excel tabs and extracts data with field mapping
+- `showImportModal()`: Displays modal with sync options (merge/replace, pieces handling)
+- `closeImportModal()`: Closes import modal and clears temp data
+- `selectImportMode(mode)`: Handles import mode selection (merge/replace)
+- `selectPiecesMode(mode)`: Handles pieces mode selection (replace/add/ignore)
+- `confirmImport()`: Applies import with selected options, creates backup, shows undo notification
+- `undoImport()`: Restores state before import (30s window)
+
+### JSON Import Function
+- `importData()`: Imports data from JSON file (legacy backup format)
 
 ### Utility Functions
 - `autoResize(textarea)`: Auto-adjusts textarea height to content
@@ -212,6 +261,9 @@ Creates a formatted `.txt` file with all filled responses, organized by sections
 - `musicPieceCounter`: Counter for unique piece IDs
 - `isSimpleMode`: Boolean flag for current mode state
 - `saveTimeout`: Timeout ID for debouncing
+- `excelDataToImport`: Temporary storage for parsed Excel data before import
+- `backupBeforeImport`: Backup of form state before import (enables undo)
+- `undoTimer`: Timeout ID for 30-second undo window
 
 ### Window Functions (Console Access)
 - `window.exportJSON()`: Exports complete data as JSON file (accessible via browser console)
@@ -280,6 +332,8 @@ The data structure is **fully backward compatible**. Old JSON files without `mus
 - **Mode toggle**: Top-left, z-index 1001
 - **Save status**: Top-right, z-index 1001
 - **Progress indicator**: Bottom-right, z-index 1000
+- **Import modal**: Centered overlay, z-index 2000 (when active)
+- **Undo notification**: Bottom-right (above progress), z-index 1002 (30s after import)
 
 ## Browser Compatibility
 
@@ -293,6 +347,8 @@ The data structure is **fully backward compatible**. Old JSON files without `mus
 - ES6+ JavaScript support
 - CSS Grid and Flexbox support
 - Blob and File APIs for exports
+- FileReader API for Excel imports
+- ArrayBuffer support for binary file reading (XLSX.js)
 
 ## Performance Considerations
 
@@ -300,6 +356,8 @@ The data structure is **fully backward compatible**. Old JSON files without `mus
 2. **Size monitoring**: Warns when localStorage data exceeds 3MB
 3. **Lazy evaluation**: Progress calculation only runs when fields change
 4. **Efficient DOM queries**: Uses specific selectors to minimize DOM traversal
+5. **Excel parsing**: Client-side parsing with XLSX.js (no server required, instant processing)
+6. **Import backup**: Full state backup created before import for undo functionality (minimal memory impact)
 
 ## Security Considerations
 
@@ -315,14 +373,20 @@ The data structure is **fully backward compatible**. Old JSON files without `mus
 3. **No cloud sync**: Data is device-specific
 4. **Excel styles**: Basic Excel export without complex formatting
 5. **Print layout**: Optimized but may need adjustment for specific printers
+6. **Excel import**: Only accepts files generated by this tool or matching the exact structure (9 tabs with specific names)
+7. **Undo window**: Import can only be undone within 30 seconds (then backup is cleared)
+8. **Import merge mode**: Cannot "clear" a field via Excel import in merge mode (empty cells are ignored)
 
 ## Future Enhancement Ideas
 
 If expanding this project, consider:
 - PDF export with custom styling
-- Cloud backup option
-- Multi-language support
-- Templates for different project types
-- Client portal for reviewing questionnaires
-- Integration with project management tools
-- Advanced Excel styling with conditional formatting
+- Cloud backup option (Google Drive, Dropbox integration)
+- Multi-language support (English, Spanish, etc.)
+- Templates for different project types (film, TV, games, ads)
+- Client portal for reviewing and filling questionnaires online
+- Integration with project management tools (Notion, Trello, Asana)
+- Advanced Excel styling with conditional formatting and cell validation
+- Excel import from manually created files (more flexible structure parsing)
+- Conflict resolution UI for simultaneous edits
+- Version history / change tracking for collaborative workflows
