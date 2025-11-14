@@ -314,23 +314,222 @@
             }
         }
         
+        /* Styles pour les morceaux dynamiques */
+        .music-pieces-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px dashed #cbd5e0;
+        }
+
+        .music-pieces-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-add-piece {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-piece:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .music-piece-container {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .music-piece-container:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-piece-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .music-piece-header:hover {
+            background: linear-gradient(135deg, #5f72bd, #9b59b6);
+        }
+
+        .music-piece-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .music-piece-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-toggle-piece,
+        .btn-remove-piece {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 1.1em;
+        }
+
+        .btn-toggle-piece:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-remove-piece:hover {
+            background: rgba(229, 62, 62, 0.8);
+        }
+
+        .music-piece-content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .music-piece-content.collapsed {
+            display: none;
+        }
+
+        .music-piece-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .music-piece-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .music-piece-field label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .music-piece-field input,
+        .music-piece-field textarea,
+        .music-piece-field select {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .music-piece-field textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .music-piece-field input:focus,
+        .music-piece-field textarea:focus,
+        .music-piece-field select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f7faff;
+        }
+
+        .music-piece-field input.filled,
+        .music-piece-field textarea.filled,
+        .music-piece-field select.filled {
+            border-color: #9ae6b4;
+            background: #f0fff4;
+        }
+
+        @media (max-width: 768px) {
+            .music-pieces-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .btn-add-piece {
+                justify-content: center;
+            }
+
+            .music-piece-content {
+                grid-template-columns: 1fr;
+            }
+
+            .music-piece-field.full-width {
+                grid-column: 1;
+            }
+        }
+
         @media print {
             body {
                 background: white;
                 padding: 0;
             }
-            
+
             .container {
                 box-shadow: none;
             }
-            
+
             .actions, .progress-indicator, .save-status {
                 display: none;
             }
-            
+
             .question-input {
                 border: 1px solid #333;
                 min-height: 40px;
+            }
+
+            .btn-add-piece,
+            .btn-remove-piece,
+            .btn-toggle-piece {
+                display: none;
+            }
+
+            .music-piece-content.collapsed {
+                display: grid !important;
             }
         }
     </style>
@@ -429,40 +628,36 @@
             <!-- 3. Besoins musicaux -->
             <div class="section">
                 <h2><span class="icon">🎼</span> Besoins musicaux spécifiques</h2>
-                
+
                 <div class="question-item">
                     <label class="question-label">Durée totale de musique désirée</label>
                     <textarea class="question-input" data-field="music-duration" placeholder="Ex: 20 minutes de musique originale..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
-                    <label class="question-label">Nombre de thèmes/morceaux différents</label>
+                    <label class="question-label">Nombre de thèmes/morceaux différents (estimation)</label>
                     <textarea class="question-input" data-field="themes-count" placeholder="Ex: 1 thème principal, 3 thèmes secondaires, 5 ambiances..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
-                    <label class="question-label">Style(s) musical(aux) recherché(s)</label>
+                    <label class="question-label">Style(s) musical(aux) général recherché(s)</label>
                     <textarea class="question-input" data-field="music-style" placeholder="Orchestral, électronique, jazz, hybride..."></textarea>
                 </div>
-                
+
                 <div class="question-item">
-                    <label class="question-label">Références musicales ou compositeurs d'inspiration</label>
+                    <label class="question-label">Références musicales ou compositeurs d'inspiration (global)</label>
                     <textarea class="question-input" data-field="references" placeholder="Films, compositeurs, morceaux spécifiques..."></textarea>
                 </div>
-                
-                <div class="question-item">
-                    <label class="question-label">Instrumentation souhaitée</label>
-                    <textarea class="question-input" data-field="instrumentation" placeholder="Orchestre complet, quartet, synthétiseurs, instruments spécifiques..."></textarea>
-                </div>
-                
-                <div class="question-item">
-                    <label class="question-label">Besoins en musique diégétique vs extra-diégétique</label>
-                    <textarea class="question-input" data-field="diegetic-music" placeholder="Musique dans la scène (radio, concert) vs musique de fond..."></textarea>
-                </div>
-                
-                <div class="question-item">
-                    <label class="question-label">Nécessité de variations (versions courtes, loops, stingers)</label>
-                    <textarea class="question-input" data-field="variations" placeholder="Versions 30s, 60s, loops pour montage, fins alternatives..."></textarea>
+
+                <!-- Section dynamique des morceaux -->
+                <div class="music-pieces-section">
+                    <div class="music-pieces-header">
+                        <h3 style="color: #5f72bd; font-size: 1.2em; margin-bottom: 15px;">📝 Détail par morceau</h3>
+                        <button type="button" class="btn-add-piece" onclick="addMusicPiece()">
+                            <span>➕</span> Ajouter un morceau
+                        </button>
+                    </div>
+                    <div id="music-pieces-container"></div>
                 </div>
             </div>
 
@@ -657,17 +852,212 @@
     </div>
 
     <script>
+        // Compteur global pour les morceaux
+        let musicPieceCounter = 0;
+
+        // Fonction pour créer un nouveau morceau
+        function createMusicPieceHTML(id, data = {}) {
+            return `
+                <div class="music-piece-container" id="music-piece-${id}">
+                    <div class="music-piece-header" onclick="toggleMusicPiece('${id}')">
+                        <div class="music-piece-title">
+                            <span>🎵</span>
+                            <span id="music-piece-title-${id}">${data.title || 'Nouveau morceau'}</span>
+                        </div>
+                        <div class="music-piece-controls">
+                            <button type="button" class="btn-toggle-piece" onclick="event.stopPropagation(); toggleMusicPiece('${id}')">
+                                <span id="toggle-icon-${id}">▼</span>
+                            </button>
+                            <button type="button" class="btn-remove-piece" onclick="event.stopPropagation(); removeMusicPiece('${id}')">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="music-piece-content" id="music-piece-content-${id}">
+                        <div class="music-piece-field full-width">
+                            <label>Titre / Nom du morceau *</label>
+                            <input type="text" class="music-piece-input" data-piece-id="${id}" data-piece-field="title"
+                                   placeholder="Ex: Thème principal, Musique générique, Scène 3..."
+                                   value="${data.title || ''}"
+                                   onchange="updateMusicPieceTitle('${id}', this.value)">
+                        </div>
+
+                        <div class="music-piece-field">
+                            <label>Durée estimée</label>
+                            <input type="text" class="music-piece-input" data-piece-id="${id}" data-piece-field="duration"
+                                   placeholder="Ex: 2:30, 3-4 minutes..."
+                                   value="${data.duration || ''}">
+                        </div>
+
+                        <div class="music-piece-field">
+                            <label>Type</label>
+                            <select class="music-piece-input" data-piece-id="${id}" data-piece-field="type">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="diegetic" ${data.type === 'diegetic' ? 'selected' : ''}>Diégétique (dans la scène)</option>
+                                <option value="extra-diegetic" ${data.type === 'extra-diegetic' ? 'selected' : ''}>Extra-diégétique (musique de fond)</option>
+                                <option value="mixed" ${data.type === 'mixed' ? 'selected' : ''}>Mixte</option>
+                            </select>
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Genre / Style spécifique</label>
+                            <input type="text" class="music-piece-input" data-piece-id="${id}" data-piece-field="genre"
+                                   placeholder="Ex: Orchestral épique, Ambient électronique, Jazz noir..."
+                                   value="${data.genre || ''}">
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Instrumentation</label>
+                            <textarea class="music-piece-input" data-piece-id="${id}" data-piece-field="instrumentation"
+                                      placeholder="Ex: Cordes + piano, Synthétiseurs + percussions ethniques...">${data.instrumentation || ''}</textarea>
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Émotions / Ambiance recherchée</label>
+                            <textarea class="music-piece-input" data-piece-id="${id}" data-piece-field="mood"
+                                      placeholder="Ex: Tension croissante, Mélancolie, Joie explosive, Mystère...">${data.mood || ''}</textarea>
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Contraintes techniques / Points de synchronisation</label>
+                            <textarea class="music-piece-input" data-piece-id="${id}" data-piece-field="constraints"
+                                      placeholder="Ex: Doit boucler parfaitement, Point de synchro à 1:23, Transition douce...">${data.constraints || ''}</textarea>
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Variations nécessaires</label>
+                            <textarea class="music-piece-input" data-piece-id="${id}" data-piece-field="variations"
+                                      placeholder="Ex: Version 30s pour trailer, Loop pour menu, Version sans percussions...">${data.variations || ''}</textarea>
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Références spécifiques (optionnel)</label>
+                            <textarea class="music-piece-input" data-piece-id="${id}" data-piece-field="references"
+                                      placeholder="Ex: Hans Zimmer - Inception, The Social Network OST...">${data.references || ''}</textarea>
+                        </div>
+
+                        <div class="music-piece-field full-width">
+                            <label>Notes additionnelles</label>
+                            <textarea class="music-piece-input" data-piece-id="${id}" data-piece-field="notes"
+                                      placeholder="Autres informations importantes pour ce morceau...">${data.notes || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Fonction pour ajouter un morceau
+        function addMusicPiece(data = null) {
+            const id = data?.id || `piece_${Date.now()}_${musicPieceCounter++}`;
+            const container = document.getElementById('music-pieces-container');
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = createMusicPieceHTML(id, data || {});
+            container.appendChild(tempDiv.firstElementChild);
+
+            // Ajouter les écouteurs d'événements aux nouveaux champs
+            const newPiece = document.getElementById(`music-piece-${id}`);
+            const inputs = newPiece.querySelectorAll('.music-piece-input');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    updateProgress();
+                    autoSave();
+
+                    // Marquer comme rempli si nécessaire
+                    if (input.value.trim() !== '') {
+                        input.classList.add('filled');
+                    } else {
+                        input.classList.remove('filled');
+                    }
+
+                    // Auto-resize pour les textareas
+                    if (input.tagName === 'TEXTAREA') {
+                        autoResize(input);
+                    }
+                });
+
+                // Auto-resize initial pour les textareas
+                if (input.tagName === 'TEXTAREA' && input.value) {
+                    autoResize(input);
+                }
+            });
+
+            // Ne pas sauvegarder si on est en train de restaurer les données
+            if (!data?.skipSave) {
+                autoSave();
+            }
+
+            updateProgress();
+        }
+
+        // Fonction pour supprimer un morceau
+        function removeMusicPiece(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce morceau ?')) {
+                const piece = document.getElementById(`music-piece-${id}`);
+                if (piece) {
+                    piece.remove();
+                    autoSave();
+                    updateProgress();
+                }
+            }
+        }
+
+        // Fonction pour replier/déplier un morceau
+        function toggleMusicPiece(id) {
+            const content = document.getElementById(`music-piece-content-${id}`);
+            const icon = document.getElementById(`toggle-icon-${id}`);
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('collapsed');
+                icon.textContent = '▶';
+            }
+        }
+
+        // Fonction pour mettre à jour le titre dans l'en-tête
+        function updateMusicPieceTitle(id, title) {
+            const titleSpan = document.getElementById(`music-piece-title-${id}`);
+            if (titleSpan) {
+                titleSpan.textContent = title || 'Nouveau morceau';
+            }
+        }
+
+        // Fonction pour récupérer les données de tous les morceaux
+        function getMusicPiecesData() {
+            const pieces = [];
+            const containers = document.querySelectorAll('.music-piece-container');
+
+            containers.forEach(container => {
+                const id = container.id.replace('music-piece-', '');
+                const inputs = container.querySelectorAll('.music-piece-input');
+                const pieceData = { id };
+
+                inputs.forEach(input => {
+                    const field = input.dataset.pieceField;
+                    pieceData[field] = input.value;
+                });
+
+                pieces.push(pieceData);
+            });
+
+            return pieces;
+        }
+
         // Fonction pour calculer la progression
         function updateProgress() {
-            const allInputs = document.querySelectorAll('.question-input, .project-field input');
+            // Récupérer tous les champs (fixes + morceaux dynamiques)
+            const allInputs = document.querySelectorAll('.question-input, .project-field input, .music-piece-input');
             const filledInputs = Array.from(allInputs).filter(input => input.value.trim() !== '');
-            const percentage = Math.round((filledInputs.length / allInputs.length) * 100);
+            const percentage = allInputs.length > 0 ? Math.round((filledInputs.length / allInputs.length) * 100) : 0;
             const degrees = (percentage / 100) * 360;
-            
+
             document.getElementById('progress-percent').textContent = percentage + '%';
             document.getElementById('progress-text').textContent = filledInputs.length + '/' + allInputs.length + ' champs';
             document.querySelector('.progress-circle').style.setProperty('--progress', degrees + 'deg');
-            
+
             // Marquer les champs remplis
             allInputs.forEach(input => {
                 if (input.value.trim() !== '') {
@@ -693,13 +1083,16 @@
                 contactPerson: document.getElementById('contact-person').value,
                 fields: {}
             };
-            
+
             document.querySelectorAll('.question-input').forEach(input => {
                 data.fields[input.dataset.field] = input.value;
             });
-            
+
+            // Ajouter les morceaux de musique
+            data.fields.musicPieces = getMusicPiecesData();
+
             localStorage.setItem('composerClientData', JSON.stringify(data));
-            
+
             // Afficher notification de sauvegarde
             const saveStatus = document.getElementById('saveStatus');
             saveStatus.classList.add('show');
@@ -719,19 +1112,29 @@
             const saved = localStorage.getItem('composerClientData');
             if (saved) {
                 const data = JSON.parse(saved);
-                
+
                 document.getElementById('client-name').value = data.clientName || '';
                 document.getElementById('project-name').value = data.projectName || '';
                 document.getElementById('contact-date').value = data.contactDate || '';
                 document.getElementById('contact-person').value = data.contactPerson || '';
-                
+
                 Object.keys(data.fields || {}).forEach(field => {
+                    // Ignorer musicPieces car il sera traité séparément
+                    if (field === 'musicPieces') return;
+
                     const input = document.querySelector(`[data-field="${field}"]`);
                     if (input) {
                         input.value = data.fields[field];
                     }
                 });
-                
+
+                // Restaurer les morceaux de musique (rétrocompatibilité : ne fait rien si absent)
+                if (data.fields.musicPieces && Array.isArray(data.fields.musicPieces)) {
+                    data.fields.musicPieces.forEach(pieceData => {
+                        addMusicPiece({ ...pieceData, skipSave: true });
+                    });
+                }
+
                 updateProgress();
             }
         }
@@ -741,7 +1144,7 @@
             const projectName = document.getElementById('project-name').value || 'projet';
             const clientName = document.getElementById('client-name').value || 'client';
             const date = new Date().toLocaleDateString('fr-FR');
-            
+
             let content = `FICHE CLIENT - PROJET MUSICAL\n`;
             content += `${'='.repeat(50)}\n\n`;
             content += `Date: ${date}\n`;
@@ -749,23 +1152,57 @@
             content += `Projet: ${projectName}\n`;
             content += `Contact: ${document.getElementById('contact-person').value}\n`;
             content += `Date premier contact: ${document.getElementById('contact-date').value}\n\n`;
-            
+
             // Parcourir toutes les sections
             document.querySelectorAll('.section').forEach(section => {
                 const title = section.querySelector('h2').textContent;
                 content += `\n${title}\n${'-'.repeat(title.length)}\n\n`;
-                
+
                 section.querySelectorAll('.question-item').forEach(item => {
                     const label = item.querySelector('.question-label').textContent;
                     const value = item.querySelector('.question-input').value;
-                    
+
                     if (value.trim()) {
                         content += `${label}\n`;
                         content += `→ ${value}\n\n`;
                     }
                 });
+
+                // Ajouter les morceaux de musique s'ils existent dans cette section
+                const musicPiecesContainer = section.querySelector('#music-pieces-container');
+                if (musicPiecesContainer) {
+                    const pieces = getMusicPiecesData();
+                    if (pieces.length > 0) {
+                        content += `\n📝 DÉTAIL PAR MORCEAU\n`;
+                        content += `${'~'.repeat(30)}\n\n`;
+
+                        pieces.forEach((piece, index) => {
+                            content += `🎵 Morceau #${index + 1}: ${piece.title || 'Sans titre'}\n`;
+                            content += `${'-'.repeat(40)}\n`;
+
+                            if (piece.duration) content += `Durée: ${piece.duration}\n`;
+                            if (piece.type) {
+                                const typeLabels = {
+                                    'diegetic': 'Diégétique (dans la scène)',
+                                    'extra-diegetic': 'Extra-diégétique (musique de fond)',
+                                    'mixed': 'Mixte'
+                                };
+                                content += `Type: ${typeLabels[piece.type] || piece.type}\n`;
+                            }
+                            if (piece.genre) content += `Genre/Style: ${piece.genre}\n`;
+                            if (piece.instrumentation) content += `Instrumentation: ${piece.instrumentation}\n`;
+                            if (piece.mood) content += `Émotions/Ambiance: ${piece.mood}\n`;
+                            if (piece.constraints) content += `Contraintes techniques: ${piece.constraints}\n`;
+                            if (piece.variations) content += `Variations: ${piece.variations}\n`;
+                            if (piece.references) content += `Références: ${piece.references}\n`;
+                            if (piece.notes) content += `Notes: ${piece.notes}\n`;
+
+                            content += `\n`;
+                        });
+                    }
+                }
             });
-            
+
             // Créer et télécharger le fichier
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
@@ -781,25 +1218,32 @@
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = '.json';
-            
+
             input.onchange = function(e) {
                 const file = e.target.files[0];
                 const reader = new FileReader();
-                
+
                 reader.onload = function(event) {
                     try {
                         const data = JSON.parse(event.target.result);
                         localStorage.setItem('composerClientData', JSON.stringify(data));
+
+                        // Nettoyer les morceaux existants avant de restaurer
+                        const musicPiecesContainer = document.getElementById('music-pieces-container');
+                        if (musicPiecesContainer) {
+                            musicPiecesContainer.innerHTML = '';
+                        }
+
                         restoreData();
                         alert('Données importées avec succès !');
                     } catch (error) {
                         alert('Erreur lors de l\'import du fichier. Assurez-vous qu\'il s\'agit d\'un fichier JSON valide.');
                     }
                 };
-                
+
                 reader.readAsText(file);
             };
-            
+
             input.click();
         }
 
@@ -810,13 +1254,19 @@
                 document.querySelectorAll('input, textarea').forEach(input => {
                     input.value = '';
                 });
-                
+
+                // Effacer tous les morceaux de musique
+                const musicPiecesContainer = document.getElementById('music-pieces-container');
+                if (musicPiecesContainer) {
+                    musicPiecesContainer.innerHTML = '';
+                }
+
                 // Effacer le localStorage
                 localStorage.removeItem('composerClientData');
-                
+
                 // Mettre à jour la progression
                 updateProgress();
-                
+
                 alert('Formulaire réinitialisé');
             }
         }
@@ -877,11 +1327,14 @@
                     contactPerson: document.getElementById('contact-person').value,
                     fields: {}
                 };
-                
+
                 document.querySelectorAll('.question-input').forEach(input => {
                     data.fields[input.dataset.field] = input.value;
                 });
-                
+
+                // Ajouter les morceaux de musique
+                data.fields.musicPieces = getMusicPiecesData();
+
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
