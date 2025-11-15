@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiche Client - Compositeur Musique à l'Image</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
-            integrity="sha512-bseags5a+imbt2TNS2DjgSh9CznyKvnr1Y0TSKZtB3vMp7VbTnXUWAgwGh0jqQ3gZEQ5PwdY9CQjGhJQF5gCdMg=="
-            crossorigin="anonymous"></script>
+    <!-- Bibliothèque XLSX pour export Excel - Multiple CDN fallbacks -->
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // Fallback si unpkg ne fonctionne pas
+        if (typeof XLSX === 'undefined') {
+            console.warn('unpkg CDN failed, trying jsDelivr...');
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            script.onerror = function() {
+                console.error('All CDN sources failed for XLSX.js');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -2647,7 +2658,31 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Restaurer les données sauvegardées
             restoreData();
-            
+
+            // Vérifier que XLSX.js est bien chargé
+            const checkXLSX = () => {
+                const excelButton = document.querySelector('button[onclick="exportExcel()"]');
+                if (typeof XLSX === 'undefined') {
+                    console.error('❌ XLSX.js n\'a pas pu être chargé depuis le CDN');
+                    if (excelButton) {
+                        excelButton.disabled = true;
+                        excelButton.style.opacity = '0.5';
+                        excelButton.style.cursor = 'not-allowed';
+                        excelButton.title = 'Bibliothèque XLSX non disponible - Vérifiez votre connexion';
+                    }
+                    showNotification('⚠️ Export Excel indisponible : bibliothèque non chargée', 'warning');
+                } else {
+                    console.log('✅ XLSX.js chargé avec succès (version: ' + (XLSX.version || 'inconnue') + ')');
+                    if (excelButton) {
+                        excelButton.title = 'Exporter le questionnaire en fichier Excel (.xlsx)';
+                    }
+                }
+            };
+
+            // Vérifier immédiatement et après un court délai (pour laisser le temps au script de charger)
+            checkXLSX();
+            setTimeout(checkXLSX, 1000);
+
             // Ajouter les écouteurs d'événements
             const allInputs = document.querySelectorAll('.question-input, .project-field input');
             
