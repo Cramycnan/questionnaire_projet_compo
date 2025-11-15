@@ -2003,13 +2003,27 @@
             for (let R = range.s.r; R <= range.e.r; ++R) {
                 for (let C = range.s.c; C <= range.e.c; ++C) {
                     const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                    const cell = ws[cellAddress];
+                    let cell = ws[cellAddress];
 
-                    if (!cell) continue;
+                    // Récupérer la valeur depuis le tableau data original (plus fiable)
+                    const dataValue = data[R] && data[R][C] !== undefined ? data[R][C] : '';
 
-                    const cellValue = cell.v || '';
-                    const isEmpty = !cellValue || cellValue === '' || cellValue.includes('NON RENSEIGNÉ') || cellValue === 'Non renseigné';
-                    const isPriority = String(cellValue).includes('🎯');
+                    // Déterminer si la cellule est vide ou "NON RENSEIGNÉ"
+                    const isEmpty = !dataValue ||
+                                   dataValue === '' ||
+                                   dataValue === 'Non renseigné' ||
+                                   String(dataValue).includes('NON RENSEIGNÉ') ||
+                                   String(dataValue).includes('⚠️');
+
+                    const isPriority = String(dataValue).includes('🎯');
+
+                    // Si la cellule n'existe pas, la créer (important pour les cellules vides !)
+                    if (!cell) {
+                        cell = { t: 's', v: dataValue || '' };
+                        ws[cellAddress] = cell;
+                    }
+
+                    const cellValue = cell.v || dataValue || '';
 
                     // Colonne A
                     if (C === 0) {
@@ -2059,7 +2073,7 @@
                                 cell.s = styles.value;
                             }
                         }
-                        // Valeur vide = fond jaune
+                        // Valeur vide = fond jaune (CORRECTION: vérifier isEmpty basé sur dataValue)
                         else if (isEmpty) {
                             cell.s = styles.emptyValue;
                         }
