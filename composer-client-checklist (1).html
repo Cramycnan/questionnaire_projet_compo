@@ -2043,10 +2043,6 @@
                         } else if (cellValue !== '') {
                             cell.s = styles.label;
                         }
-
-                        // Protection: toutes les cellules de colonne A sont en lecture seule
-                        if (!cell.s) cell.s = {};
-                        cell.s.protection = { locked: true };
                     }
                     // Colonne B et au-delà (valeurs)
                     else {
@@ -2086,10 +2082,6 @@
                         if (lastSectionRow >= 0 && R === lastSectionRow + 1 && cell.s && cell.s.border) {
                             cell.s.border.top = borders.medium;
                         }
-
-                        // Les cellules de valeurs sont modifiables
-                        if (!cell.s) cell.s = {};
-                        cell.s.protection = { locked: false };
                     }
                 }
             }
@@ -2134,18 +2126,9 @@
                 }
             }
 
-            // Activer la protection de la feuille (mais permettre la sélection et l'édition des cellules déverrouillées)
-            ws['!protect'] = {
-                selectLockedCells: true,
-                selectUnlockedCells: true,
-                formatCells: false,
-                formatColumns: false,
-                formatRows: false,
-                insertColumns: false,
-                insertRows: false,
-                deleteColumns: false,
-                deleteRows: false
-            };
+            // Note: La protection de feuille Excel n'est pas activée pour permettre
+            // une édition libre du fichier exporté. L'utilisateur peut activer
+            // manuellement la protection dans Excel s'il le souhaite.
         }
 
         // Fonction d'export Excel optimisée
