@@ -4,18 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiche Client - Compositeur Musique à l'Image</title>
-    <!-- Bibliothèque XLSX pour export Excel - Multiple CDN fallbacks -->
-    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Bibliothèque XLSX-Style pour export Excel AVEC STYLES - Multiple CDN fallbacks -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
-        // Fallback si unpkg ne fonctionne pas
+        // Fallback si jsDelivr ne fonctionne pas
         if (typeof XLSX === 'undefined') {
-            console.warn('unpkg CDN failed, trying jsDelivr...');
+            console.warn('jsDelivr CDN failed, trying unpkg...');
             var script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            script.src = 'https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
             script.onerror = function() {
-                console.error('All CDN sources failed for XLSX.js');
+                console.error('All CDN sources failed for XLSX.js - Trying original XLSX without styles');
+                var fallbackScript = document.createElement('script');
+                fallbackScript.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
+                document.head.appendChild(fallbackScript);
             };
             document.head.appendChild(script);
+        } else {
+            console.log('✅ XLSX-Style loaded - Styles will be applied to Excel export');
         }
     </script>
     <style>
@@ -2428,13 +2433,22 @@
             applySheetStyles(extraWs, extraData, "➕ Compléments");
             XLSX.utils.book_append_sheet(wb, extraWs, "➕ Compléments");
 
-                // Sauvegarder le fichier
+                // Sauvegarder le fichier avec options pour les styles
                 const fileName = `Fiche-Client-${clientName.replace(/\s+/g, '-')}-${projectName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.xlsx`;
-                XLSX.writeFile(wb, fileName);
+
+                // Options d'écriture pour activer les styles
+                const writeOptions = {
+                    bookType: 'xlsx',
+                    bookSST: false,
+                    type: 'binary',
+                    cellStyles: true // Important : active l'export des styles
+                };
+
+                XLSX.writeFile(wb, fileName, writeOptions);
 
                 // Notification de succès
                 showNotification('✅ Fichier Excel exporté avec succès !', 'success');
-                console.log('Export Excel réussi:', fileName);
+                console.log('Export Excel réussi avec styles:', fileName);
 
             } catch (error) {
                 console.error('Erreur lors de l\'export Excel:', error);
