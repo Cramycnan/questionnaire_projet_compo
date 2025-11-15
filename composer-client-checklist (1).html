@@ -1870,12 +1870,20 @@
 
         // Fonction d'export Excel optimisée
         function exportExcel() {
-            const projectName = document.getElementById('project-name').value || 'projet';
-            const clientName = document.getElementById('client-name').value || 'client';
-            const date = new Date().toLocaleDateString('fr-FR');
+            // Vérifier que XLSX.js est bien chargé
+            if (typeof XLSX === 'undefined') {
+                showNotification('❌ Erreur : La bibliothèque XLSX.js n\'est pas chargée. Vérifiez votre connexion internet.', 'error');
+                console.error('XLSX.js non disponible');
+                return;
+            }
 
-            // Créer un nouveau workbook
-            const wb = XLSX.utils.book_new();
+            try {
+                const projectName = document.getElementById('project-name').value || 'projet';
+                const clientName = document.getElementById('client-name').value || 'client';
+                const date = new Date().toLocaleDateString('fr-FR');
+
+                // Créer un nouveau workbook
+                const wb = XLSX.utils.book_new();
 
             // ONGLET 1: DASHBOARD - Récapitulatif visuel
             const dashboardData = [
@@ -2121,9 +2129,18 @@
             const extraWs = XLSX.utils.aoa_to_sheet(extraData);
             XLSX.utils.book_append_sheet(wb, extraWs, "➕ Compléments");
 
-            // Sauvegarder le fichier
-            const fileName = `Fiche-Client-${clientName.replace(/\s+/g, '-')}-${projectName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(wb, fileName);
+                // Sauvegarder le fichier
+                const fileName = `Fiche-Client-${clientName.replace(/\s+/g, '-')}-${projectName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+
+                // Notification de succès
+                showNotification('✅ Fichier Excel exporté avec succès !', 'success');
+                console.log('Export Excel réussi:', fileName);
+
+            } catch (error) {
+                console.error('Erreur lors de l\'export Excel:', error);
+                showNotification('❌ Erreur lors de l\'export Excel : ' + error.message, 'error');
+            }
         }
 
         // ============================================
