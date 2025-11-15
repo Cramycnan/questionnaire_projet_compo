@@ -1926,11 +1926,11 @@
 
             const range = XLSX.utils.decode_range(ws['!ref']);
 
-            // Bordures prédéfinies
+            // Bordures prédéfinies (couleurs neutres pour éviter confusion avec les fonds bleus)
             const borders = {
-                thin: { style: "thin", color: { rgb: "CCCCCC" } },
-                medium: { style: "medium", color: { rgb: "667EEA" } },
-                thick: { style: "thick", color: { rgb: "667EEA" } }
+                thin: { style: "thin", color: { rgb: "CCCCCC" } },      // Gris clair
+                medium: { style: "medium", color: { rgb: "999999" } },   // Gris moyen
+                thick: { style: "thick", color: { rgb: "666666" } }      // Gris foncé
             };
 
             const allBorders = {
@@ -2571,22 +2571,23 @@
                     const range = XLSX.utils.decode_range(sheet['!ref']);
 
                     // Commencer à la ligne 3 (après les en-têtes)
+                    // Note : Col 0 = "#" (numéro), donc les données commencent à col 1
                     for (let row = 3; row <= range.e.r; row++) {
-                        const title = getCellValue(sheet, row, 0);
+                        const title = getCellValue(sheet, row, 1); // Col 1 = Nom du morceau (col 0 = #)
 
                         // Si pas de titre, on arrête (fin des morceaux)
                         if (!title) break;
 
                         const piece = {
                             id: `piece_imported_${Date.now()}_${row}`,
-                            title: title,
-                            duration: getCellValue(sheet, row, 1),
-                            type: getCellValue(sheet, row, 2),
-                            genre: getCellValue(sheet, row, 3),
-                            instrumentation: getCellValue(sheet, row, 4),
-                            mood: getCellValue(sheet, row, 5),
-                            constraints: getCellValue(sheet, row, 6),
-                            variations: getCellValue(sheet, row, 7),
+                            title: title,                          // Col 1
+                            duration: getCellValue(sheet, row, 2), // Col 2
+                            type: getCellValue(sheet, row, 3),     // Col 3
+                            genre: getCellValue(sheet, row, 4),    // Col 4
+                            instrumentation: getCellValue(sheet, row, 5), // Col 5
+                            mood: getCellValue(sheet, row, 6),     // Col 6
+                            constraints: getCellValue(sheet, row, 7), // Col 7
+                            variations: getCellValue(sheet, row, 8), // Col 8
                             references: '',
                             notes: ''
                         };
