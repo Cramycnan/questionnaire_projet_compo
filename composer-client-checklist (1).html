@@ -1879,11 +1879,61 @@
             return input ? input.value : '';
         }
 
-        // Fonction pour appliquer des styles à une feuille Excel
-        function applySheetStyles(ws, data) {
+        // Fonction utilitaire pour parser les dates françaises
+        function parseFrenchDate(dateStr) {
+            if (!dateStr) return null;
+            // Format attendu: DD/MM/YYYY ou YYYY-MM-DD
+            const parts = dateStr.split(/[\/\-]/);
+            if (parts.length !== 3) return null;
+
+            let day, month, year;
+            if (parts[0].length === 4) {
+                // Format YYYY-MM-DD
+                year = parseInt(parts[0]);
+                month = parseInt(parts[1]) - 1;
+                day = parseInt(parts[2]);
+            } else {
+                // Format DD/MM/YYYY
+                day = parseInt(parts[0]);
+                month = parseInt(parts[1]) - 1;
+                year = parseInt(parts[2]);
+            }
+
+            const date = new Date(year, month, day);
+            return isNaN(date.getTime()) ? null : date;
+        }
+
+        // Fonction pour calculer les jours restants jusqu'à une date
+        function daysUntil(dateStr) {
+            const targetDate = parseFrenchDate(dateStr);
+            if (!targetDate) return null;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // Fonction pour appliquer des styles à une feuille Excel (version avancée)
+        function applySheetStyles(ws, data, sheetName) {
             if (!ws || !data) return;
 
             const range = XLSX.utils.decode_range(ws['!ref']);
+
+            // Bordures prédéfinies
+            const borders = {
+                thin: { style: "thin", color: { rgb: "CCCCCC" } },
+                medium: { style: "medium", color: { rgb: "667EEA" } },
+                thick: { style: "thick", color: { rgb: "667EEA" } }
+            };
+
+            const allBorders = {
+                top: borders.thin,
+                bottom: borders.thin,
+                left: borders.thin,
+                right: borders.thin
+            };
 
             // Styles prédéfinis
             const styles = {
@@ -1891,36 +1941,63 @@
                 sectionTitle: {
                     font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
                     fill: { fgColor: { rgb: "667EEA" } },
-                    alignment: { horizontal: "left", vertical: "center" }
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: { bottom: borders.thick, top: borders.medium, left: borders.medium, right: borders.medium }
                 },
                 // Labels (colonne A - titres des champs)
                 label: {
                     font: { bold: true, sz: 11, color: { rgb: "333333" } },
                     fill: { fgColor: { rgb: "F0F0F0" } },
-                    alignment: { horizontal: "left", vertical: "center" }
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: allBorders
+                },
+                // Labels prioritaires (avec 🎯)
+                priorityLabel: {
+                    font: { bold: true, sz: 11, color: { rgb: "D84315" } },
+                    fill: { fgColor: { rgb: "FFE0B2" } },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: { ...allBorders, left: { style: "medium", color: { rgb: "FF6F00" } } }
                 },
                 // Valeurs remplies (colonne B)
                 value: {
                     font: { sz: 11, color: { rgb: "333333" } },
                     fill: { fgColor: { rgb: "FFFFFF" } },
-                    alignment: { horizontal: "left", vertical: "center", wrapText: true }
+                    alignment: { horizontal: "left", vertical: "center", wrapText: true },
+                    border: allBorders
                 },
                 // Valeurs vides (colonne B - jaune pastel)
                 emptyValue: {
                     font: { italic: true, sz: 11, color: { rgb: "999999" } },
                     fill: { fgColor: { rgb: "FFF9C4" } },
-                    alignment: { horizontal: "left", vertical: "center" }
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: allBorders
                 },
                 // En-têtes de tableau (pour l'onglet Morceaux)
                 tableHeader: {
                     font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
                     fill: { fgColor: { rgb: "764BA2" } },
-                    alignment: { horizontal: "center", vertical: "center", wrapText: true }
+                    alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                    border: { top: borders.thick, bottom: borders.thick, left: borders.thin, right: borders.thin }
+                },
+                // Dates urgentes (< 30 jours)
+                urgentDate: {
+                    font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "E53E3E" } },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: allBorders
+                },
+                // Dates moyennes (30-60 jours)
+                warningDate: {
+                    font: { sz: 11, color: { rgb: "333333" } },
+                    fill: { fgColor: { rgb: "FFA726" } },
+                    alignment: { horizontal: "left", vertical: "center" },
+                    border: allBorders
                 }
             };
 
             // Calculer la largeur maximale de la colonne A
             let maxWidthColA = 10;
+            let lastSectionRow = -1;
 
             // Parcourir toutes les cellules
             for (let R = range.s.r; R <= range.e.r; ++R) {
@@ -1932,6 +2009,7 @@
 
                     const cellValue = cell.v || '';
                     const isEmpty = !cellValue || cellValue === '' || cellValue.includes('NON RENSEIGNÉ') || cellValue === 'Non renseigné';
+                    const isPriority = String(cellValue).includes('🎯');
 
                     // Colonne A
                     if (C === 0) {
@@ -1945,15 +2023,41 @@
 
                         if (isSectionTitle) {
                             cell.s = styles.sectionTitle;
+                            lastSectionRow = R;
+                        } else if (isPriority) {
+                            cell.s = styles.priorityLabel;
                         } else if (cellValue !== '') {
                             cell.s = styles.label;
                         }
+
+                        // Protection: toutes les cellules de colonne A sont en lecture seule
+                        if (!cell.s) cell.s = {};
+                        cell.s.protection = { locked: true };
                     }
                     // Colonne B et au-delà (valeurs)
                     else {
                         // Vérifier si c'est un en-tête de tableau (ligne 3 de l'onglet Morceaux)
-                        if (R === 2 && data[R] && data[R][C] && data[R][C].includes('🎯')) {
+                        if (R === 2 && data[R] && data[R][C] && (String(data[R][C]).includes('🎯') || String(data[R][C]).includes('#'))) {
                             cell.s = styles.tableHeader;
+                        }
+                        // Vérifier si c'est une date et appliquer le formatage conditionnel
+                        else if (data[R] && data[R][0] && (data[R][0].includes('Date') || data[R][0].includes('Deadline') || data[R][0].includes('deadline'))) {
+                            const days = daysUntil(cellValue);
+                            if (days !== null) {
+                                if (days < 30 && days >= 0) {
+                                    cell.s = styles.urgentDate;
+                                } else if (days >= 30 && days < 60) {
+                                    cell.s = styles.warningDate;
+                                } else if (!isEmpty) {
+                                    cell.s = styles.value;
+                                } else {
+                                    cell.s = styles.emptyValue;
+                                }
+                            } else if (isEmpty) {
+                                cell.s = styles.emptyValue;
+                            } else {
+                                cell.s = styles.value;
+                            }
                         }
                         // Valeur vide = fond jaune
                         else if (isEmpty) {
@@ -1963,24 +2067,71 @@
                         else {
                             cell.s = styles.value;
                         }
+
+                        // Bordure plus épaisse après une section
+                        if (lastSectionRow >= 0 && R === lastSectionRow + 1 && cell.s && cell.s.border) {
+                            cell.s.border.top = borders.medium;
+                        }
+
+                        // Les cellules de valeurs sont modifiables
+                        if (!cell.s) cell.s = {};
+                        cell.s.protection = { locked: false };
                     }
                 }
             }
 
-            // Ajuster automatiquement la largeur de la colonne A
-            ws['!cols'] = ws['!cols'] || [];
-            ws['!cols'][0] = { wch: Math.min(maxWidthColA, 50) }; // Max 50 caractères
+            // Ajustements spécifiques pour l'onglet Morceaux
+            if (sheetName && sheetName.includes('Morceaux')) {
+                // Largeurs optimales pour chaque colonne
+                ws['!cols'] = [
+                    { wch: 5 },  // # (numéro)
+                    { wch: 30 }, // Nom du morceau
+                    { wch: 10 }, // Durée
+                    { wch: 15 }, // Type
+                    { wch: 20 }, // Genre/Style
+                    { wch: 25 }, // Instrumentation
+                    { wch: 25 }, // Émotions/Ambiance
+                    { wch: 30 }, // Contraintes
+                    { wch: 20 }  // Variations
+                ];
 
-            // Ajuster les autres colonnes à une largeur raisonnable
-            for (let C = 1; C <= range.e.c; ++C) {
-                ws['!cols'][C] = { wch: 25 };
+                // Geler les volets (freeze panes) : figer la ligne d'en-tête (ligne 3)
+                ws['!freeze'] = { xSplit: 0, ySplit: 3 };
+            } else {
+                // Ajuster automatiquement la largeur de la colonne A
+                ws['!cols'] = ws['!cols'] || [];
+                ws['!cols'][0] = { wch: Math.min(maxWidthColA, 50) }; // Max 50 caractères
+
+                // Ajuster les autres colonnes à une largeur raisonnable
+                for (let C = 1; C <= range.e.c; ++C) {
+                    ws['!cols'][C] = { wch: 25 };
+                }
             }
 
             // Définir les hauteurs de lignes pour une meilleure lisibilité
             ws['!rows'] = ws['!rows'] || [];
             for (let R = range.s.r; R <= range.e.r; ++R) {
-                ws['!rows'][R] = { hpt: 20 }; // Hauteur par défaut
+                // Lignes de titres plus hautes
+                const cellA = ws[XLSX.utils.encode_cell({ r: R, c: 0 })];
+                if (cellA && cellA.s && cellA.s.fill && cellA.s.fill.fgColor && cellA.s.fill.fgColor.rgb === "667EEA") {
+                    ws['!rows'][R] = { hpt: 25 };
+                } else {
+                    ws['!rows'][R] = { hpt: 20 }; // Hauteur par défaut
+                }
             }
+
+            // Activer la protection de la feuille (mais permettre la sélection et l'édition des cellules déverrouillées)
+            ws['!protect'] = {
+                selectLockedCells: true,
+                selectUnlockedCells: true,
+                formatCells: false,
+                formatColumns: false,
+                formatRows: false,
+                insertColumns: false,
+                insertRows: false,
+                deleteColumns: false,
+                deleteRows: false
+            };
         }
 
         // Fonction d'export Excel optimisée
@@ -2036,10 +2187,36 @@
 
             dashboardData.push(['', '']);
             dashboardData.push(['📈 PROGRESSION', '']);
-            dashboardData.push(['Champs essentiels remplis', `${filledEssentials}/${essentialFields.length} (${Math.round(filledEssentials/essentialFields.length*100)}%)`]);
+
+            // Créer une barre de progression visuelle
+            const progressPercent = Math.round(filledEssentials/essentialFields.length*100);
+            const barLength = 20; // Longueur de la barre en caractères
+            const filledBlocks = Math.round((progressPercent / 100) * barLength);
+            const emptyBlocks = barLength - filledBlocks;
+            const progressBar = '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
+
+            dashboardData.push(['Champs essentiels remplis', `${filledEssentials}/${essentialFields.length} (${progressPercent}%)`]);
+            dashboardData.push(['Barre de progression', progressBar + ` ${progressPercent}%`]);
 
             const dashboardWs = XLSX.utils.aoa_to_sheet(dashboardData);
-            applySheetStyles(dashboardWs, dashboardData);
+            applySheetStyles(dashboardWs, dashboardData, "📊 Dashboard");
+
+            // Appliquer un style spécial à la barre de progression
+            const progressRowIndex = dashboardData.length - 1;
+            const progressCell = dashboardWs[XLSX.utils.encode_cell({ r: progressRowIndex, c: 1 })];
+            if (progressCell) {
+                progressCell.s = {
+                    font: { bold: true, sz: 12, name: 'Courier New' },
+                    fill: { fgColor: { rgb: progressPercent >= 80 ? '48bb78' : progressPercent >= 50 ? 'FFA726' : 'E53E3E' } },
+                    alignment: { horizontal: 'left', vertical: 'center' },
+                    border: {
+                        top: { style: "thin", color: { rgb: "CCCCCC" } },
+                        bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+                        left: { style: "thin", color: { rgb: "CCCCCC" } },
+                        right: { style: "thin", color: { rgb: "CCCCCC" } }
+                    }
+                };
+            }
             XLSX.utils.book_append_sheet(wb, dashboardWs, "📊 Dashboard");
 
             // ONGLET 2: Informations Générales
@@ -2062,7 +2239,7 @@
             });
 
             const generalWs = XLSX.utils.aoa_to_sheet(generalData);
-            applySheetStyles(generalWs, generalData);
+            applySheetStyles(generalWs, generalData, "📋 Projet");
             XLSX.utils.book_append_sheet(wb, generalWs, "📋 Projet");
 
             // ONGLET 3: Budget & Planning
@@ -2102,23 +2279,24 @@
             });
 
             const budgetWs = XLSX.utils.aoa_to_sheet(budgetData);
-            applySheetStyles(budgetWs, budgetData);
+            applySheetStyles(budgetWs, budgetData, "💰 Budget & Planning");
             XLSX.utils.book_append_sheet(wb, budgetWs, "💰 Budget & Planning");
 
-            // ONGLET 4: Morceaux Musicaux
-            const tracksData = [['🎼 MORCEAUX MUSICAUX', '', '', '', '', '', '', '']];
-            tracksData.push(['', '', '', '', '', '', '', '']);
-            tracksData.push(['🎯 Nom du morceau', '🎯 Durée', '🎯 Type', '🎯 Genre/Style', 'Instrumentation', 'Émotions/Ambiance', 'Contraintes', 'Variations']);
+            // ONGLET 4: Morceaux Musicaux (avec numérotation)
+            const tracksData = [['🎼 MORCEAUX MUSICAUX', '', '', '', '', '', '', '', '']];
+            tracksData.push(['', '', '', '', '', '', '', '', '']);
+            tracksData.push(['#', '🎯 Nom du morceau', '🎯 Durée', '🎯 Type', '🎯 Genre/Style', 'Instrumentation', 'Émotions/Ambiance', 'Contraintes', 'Variations']);
 
             const pieces = getMusicPiecesData();
             if (pieces.length > 0) {
-                pieces.forEach(piece => {
+                pieces.forEach((piece, index) => {
                     const typeLabels = {
                         'diegetic': 'Diégétique',
                         'extra-diegetic': 'Extra-diégétique',
                         'mixed': 'Mixte'
                     };
                     tracksData.push([
+                        (index + 1).toString(), // Numéro du morceau
                         piece.title || '',
                         piece.duration || '',
                         typeLabels[piece.type] || piece.type || '',
@@ -2132,7 +2310,7 @@
             }
 
             const tracksWs = XLSX.utils.aoa_to_sheet(tracksData);
-            applySheetStyles(tracksWs, tracksData);
+            applySheetStyles(tracksWs, tracksData, "🎼 Morceaux");
             XLSX.utils.book_append_sheet(wb, tracksWs, "🎼 Morceaux");
 
             // ONGLET 5: Besoins Musicaux Globaux
@@ -2154,7 +2332,7 @@
             });
 
             const musicWs = XLSX.utils.aoa_to_sheet(musicData);
-            applySheetStyles(musicWs, musicData);
+            applySheetStyles(musicWs, musicData, "🎵 Besoins Musicaux");
             XLSX.utils.book_append_sheet(wb, musicWs, "🎵 Besoins Musicaux");
 
             // ONGLET 6: Aspects Légaux
@@ -2178,7 +2356,7 @@
             });
 
             const legalWs = XLSX.utils.aoa_to_sheet(legalData);
-            applySheetStyles(legalWs, legalData);
+            applySheetStyles(legalWs, legalData, "⚖️ Droits");
             XLSX.utils.book_append_sheet(wb, legalWs, "⚖️ Droits");
 
             // ONGLET 7: Aspects Techniques
@@ -2202,7 +2380,7 @@
             });
 
             const techWs = XLSX.utils.aoa_to_sheet(techData);
-            applySheetStyles(techWs, techData);
+            applySheetStyles(techWs, techData, "🎧 Technique");
             XLSX.utils.book_append_sheet(wb, techWs, "🎧 Technique");
 
             // ONGLET 8: Collaboration
@@ -2226,7 +2404,7 @@
             });
 
             const collabWs = XLSX.utils.aoa_to_sheet(collabData);
-            applySheetStyles(collabWs, collabData);
+            applySheetStyles(collabWs, collabData, "🤝 Collaboration");
             XLSX.utils.book_append_sheet(wb, collabWs, "🤝 Collaboration");
 
             // ONGLET 9: Compléments
@@ -2250,7 +2428,7 @@
             });
 
             const extraWs = XLSX.utils.aoa_to_sheet(extraData);
-            applySheetStyles(extraWs, extraData);
+            applySheetStyles(extraWs, extraData, "➕ Compléments");
             XLSX.utils.book_append_sheet(wb, extraWs, "➕ Compléments");
 
                 // Sauvegarder le fichier
